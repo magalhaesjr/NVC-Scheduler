@@ -1,0 +1,24 @@
+{
+  "name": "NVC-Scheduler",
+  "version": "0.0.1",
+  "description": "Create NVC Schedules",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/magalhaesjr/NVC-Scheduler",
+  "author": "Jeff Magalhaes",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "electron": "^4.0.1",
+    "nedb": "^1.8.0",
+    "nodegit": "^0.23.0",
+    "xlsx": "^0.14.1"
+  },
+  "devDependencies": {
+    "electron-packager": "^13.0.1"
+  },
+  "jshintConfig": {
+    "esversion": 6
+  }
+}
