@@ -116,6 +116,12 @@ const menuTemplate = [{
             //Hide the main window
             mainWindow.hide();
             toolWin.openDevTools();
+
+            //Load the templates when the window is ready
+            toolWin.webContents.on('did-finish-load',()=>{
+              toolWin.webContents.send('load-Templates');
+            });
+
             //When the new window is in focus then you set the menu to the tool menu
             toolWin.on('focus',()=>Menu.setApplicationMenu(toolMenu));
             //Cleanup stuff
