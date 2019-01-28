@@ -4,9 +4,28 @@
   <title>Document</title>
 </head>
 <body>
-  Tempalate Tools
+  <h1> Templates Currently In Database </h1>
+  <table id="templateTable">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Season</th>
+        <th>Number of Teams</th>
+        <th>Number of Courts</th>
+        <th>Number of Weeks</th>
+        <th>Maximum Byes</th>
+        <th>Minimum Matches</th>
+        <th>Balanced</th>
+        <th>Equal Matches</th>
+        <th>Pools</th>
+        <th>Comments</th>
+      </tr>
+    </thead>
+    <tbody id="ttBody"></tbody>
+  </table>
   <!-- Script which handles all of the functionality in here -->
-  <script src='./templateTool.js'>
+  <script>
+    require('./templateTool.js');
   </script>
 </body>
 </html>
