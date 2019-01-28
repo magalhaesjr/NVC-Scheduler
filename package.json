@@ -17,8 +17,5 @@
   },
   "devDependencies": {
     "electron-packager": "^13.0.1"
-  },
-  "jshintConfig": {
-    "esversion": 6
   }
 }
