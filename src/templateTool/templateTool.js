@@ -126,9 +126,13 @@ function drawTemplateTable(){
   let body = document.getElementById('ttBody');
   body.remove();
   //table.removeChild(oldBody[0]);
+  //Create a document fragment which makes this faster
+  const c = document.createDocumentFragment();
   //New body to Create
   let newBody = document.createElement("tbody");
   newBody.setAttribute("id",'ttBody');
+  //Add to the document fragment
+  c.appendChild(newBody);
   //now add rows to the newBody from the dbTemplates structure
   for(let i=0;i<dbTemplates.length;i++){
     //add a row
@@ -146,5 +150,5 @@ function drawTemplateTable(){
     newBody.appendChild(row);
   }
   //Now add the new body to the table
-  table.appendChild(newBody);
+  table.appendChild(c);
 }
