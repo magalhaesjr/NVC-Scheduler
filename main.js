@@ -32,7 +32,9 @@ app.on('ready', () => {
   mainWindow = new BrowserWindow({
     height: 600,
     width: 800,
-    title: 'NVC Scheduler'
+    title: 'NVC Scheduler' ,
+    webPreferences:{
+    nodeIntegration: true}
   });
 
   //Now open up the file which displays the main program
@@ -41,6 +43,8 @@ app.on('ready', () => {
     protocol: 'file:',
     slashes: true
   }));
+
+  mainWindow.openDevTools();
 
   //MENUS
   toolMenu = Menu.buildFromTemplate(templateToolMenu);
@@ -66,12 +70,14 @@ const menuTemplate = [{
     submenu: [
         {label: 'Initialize',
         submenu: [
-          { label: 'From Template',
-            click() {
-              //TODO choose template and then initiailize schedule from it
-            },
-          },
-          {label: 'Automatically',
+          { label: 'Template Schedule',
+          submenu: [
+            {label:'For Beach',
+              click() {mainWindow.send('start-template-schedule','beach');}},
+              {label: 'For Indoor',
+              click() {mainWindow.send('start-template-schedule','indoor');}}
+          ]},
+          {label: 'Auto-Schedule',
             click() {
               //TODO initialize window for parameter choices then auto generate a
               //schedule
