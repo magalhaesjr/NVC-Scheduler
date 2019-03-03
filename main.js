@@ -14,13 +14,16 @@ const {
 
 //Define an environment variable to discern the platform (useful for MAC specific
 //crap)
-const ISMAC_ENV = process.platform == 'darwin';
+process.env.ISMAC_ENV = process.platform == 'darwin';
+process.env.NODE_ENV = 'development';
 
 //All windows should be managed from this file
 //main window variable
 let mainWindow;
 //Template tool window
 let toolWin=null;
+//team preview window
+let previewWin = null;
 
 //Menus
 let mainMenu;
@@ -44,8 +47,6 @@ app.on('ready', () => {
     slashes: true
   }));
 
-  mainWindow.openDevTools();
-
   //MENUS
   toolMenu = Menu.buildFromTemplate(templateToolMenu);
   mainMenu = Menu.buildFromTemplate(menuTemplate);
@@ -60,6 +61,37 @@ app.on('ready', () => {
   });
 });
 
+/*****************************************************************************
+ *****                                                                   *****
+ *****                        Renderer Thread Comms                      *****
+ *****                                                                   *****
+ ****************************************************************************/
+ipcMain.on('launch-team-preview',(e,teamPreview,teamNum)=>{
+  if (previewWin==null)
+  {
+    previewWin = new BrowserWindow({
+      title: 'Team Preview',
+      menuBarVisibility: "toggle",
+      autoHideMenuBar: true,
+      webPreferences:{
+      nodeIntegration: true}
+    });
+
+    previewWin.loadURL(url.format({
+      pathname: path.join(__dirname, "src/previewTeam.html"),
+      protocol: 'file:',
+      slashes: true
+    }));
+    //Send rquired info
+    previewWin.webContents.on('did-finish-load',()=>{
+      previewWin.webContents.send('init-team-preview',teamPreview,teamNum);});
+    //Cleanup stuff
+    previewWin.on('close', ()=> previewWin=null);
+  }else{
+    //just send an update
+    previewWin.webContents.send('update-team-preview',teamNum);
+  }
+});
 /*******************************************************************************
  *****                                                                      *****
  *****                               MENUS                                  *****
@@ -93,7 +125,7 @@ const menuTemplate = [{
       {
         label: 'Quit',
         //need a special case for mac platform
-        accelerator: ISMAC_ENV ? 'Command+Q' : 'Ctrl+Q',
+        accelerator: process.env.ISMAC_ENV ? 'Command+Q' : 'Ctrl+Q',
         click() {
           app.quit();
         }
@@ -121,7 +153,6 @@ const menuTemplate = [{
 
             //Hide the main window
             mainWindow.hide();
-            toolWin.openDevTools();
 
             //Load the templates when the window is ready
             toolWin.webContents.on('did-finish-load',()=>{
@@ -144,6 +175,24 @@ const menuTemplate = [{
       }
     ]
   }];
+  // Add developer tools option if in dev
+if(process.env.NODE_ENV !== 'production'){
+  menuTemplate.push({
+    label: 'Developer Tools',
+    submenu:[
+      {
+        role: 'reload'
+      },
+      {
+        label: 'Toggle DevTools',
+        accelerator:process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
+        click(item, focusedWindow){
+          focusedWindow.toggleDevTools();
+        }
+      }
+    ]
+  });
+}
 //Main menu for the template tool
 const templateToolMenu = [
   { label: 'Database',
@@ -158,3 +207,20 @@ const templateToolMenu = [
       },
     },
     {label: 'Load Template'}]}];
+if(process.env.NODE_ENV !== 'production'){
+  templateToolMenu.push({
+    label: 'Developer Tools',
+    submenu:[
+      {
+        role: 'reload'
+      },
+      {
+        label: 'Toggle DevTools',
+        accelerator:process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
+        click(item, focusedWindow){
+          focusedWindow.toggleDevTools();
+        }
+      }
+    ]
+  });
+}
