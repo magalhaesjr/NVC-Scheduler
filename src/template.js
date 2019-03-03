@@ -54,6 +54,23 @@ class TeamPreview {
     this.byeRequests = [];
     this.opponents = [];
   }
+  copy(objOut){
+    //We just need a shallow assign since it's just arrays and static Numbers
+    for(let key in this){
+      if(Array.isArray(this[key])){
+        //do a slice for all elements
+        objOut[key] = this[key].slice(0,this[key].length);
+      }else{objOut[key]=this[key];}
+    }
+  }
+}
+
+//We'll create a sub class for team information
+class TeamInfo extends TeamPreview{
+  constructor(teamNumber,teamName,mappingCode){
+    super(teamNumber,teamName);
+    this.mappingCode = mappingCode;
+  }
 }
 
 //Template class which has all definitions for working with a template
@@ -308,13 +325,13 @@ class Template {
       for (let t = 0; t < this._schedule.week[w].timeSlot.length; t++) {
         ts = this._schedule.week[w].timeSlot[t];
         //Check which teams are on bye, and add them to
-        if (typeof ts.byeTeams ==='number' && ts.byeTeams>0) {
           for (let b = 0; b < ts.byeTeams.length; b++) {
+            if (typeof ts.byeTeams[b] ==='number' && ts.byeTeams[b]>0) {
             this._teamPreview[ts.byeTeams[b] - 1].byeWeeks.push(w + 1);
             if (ts.match.length > 0) {
               this._teamPreview[ts.byeTeams[b] - 1].byeTimes.push(ts.match[0].time);
             }
-          }
+          }else{console.log(ts.byeTeams);}
         }
         //Now check each matchup and fill in the team preview
         for (let m = 0; m < ts.match.length; m++) {
@@ -333,6 +350,70 @@ class Template {
         } //end match loop
       } //end time slot loop
     } //end week loop
+  }
+  updateTeamPreview(field,data)
+  {
+    switch (field){
+      case 'date':
+        //loop through all team previews and replace the week number with the
+        //actual date in the template
+        let index;
+        for(let i=0;i<this._teamPreview.length;i++){
+          this._teamPreview[i].playWeek.forEach(function(element,ind){
+            index = data.findIndex(function(e) {return e===element;});
+            this._teamPreview[i].playWeek[ind] = this._schedule.week[index].date;},this);
+            this._teamPreview[i].byeWeeks.forEach(function(element,ind){
+              index = data.findIndex(function(e) {return e===element;});
+              this._teamPreview[i].byeWeeks[ind] = this._schedule.week[index].date;},this);
+        }
+        break;
+      case 'court':
+        let minCourt = 100;
+        for(let i=0;i<this._teamPreview.length;i++){
+          for(let j=0;j<this._teamPreview[i].court.length;j++){
+            if(this._teamPreview[i].court[j]<minCourt){
+              minCourt = this._teamPreview[i].court[j];
+            }
+          }
+        }
+        data = data-minCourt;
+        this._teamPreview.forEach((e,i)=>{
+          e.court.forEach((ec,ic)=>{this._teamPreview[i].court[ic] =ec+data;});
+        });
+        break;
+    }
+  }
+  //Deep copy, returns a duplicate class
+  copy(){
+    //Copy the static variables in the object
+    let obj = copyObjectValues(new Template(),this);
+
+    //Copy the schedule
+    obj._schedule = new TemplateTable();
+    //Copy static values
+    obj._schedule = copyObjectValues(obj._schedule,this._schedule);
+
+    //Now copy all of the weeks
+    this._schedule.week.forEach((e,i)=>{
+      obj._schedule.week[i] = copyObjectValues(new Week(),e);
+      //Now copy the timeslots
+      e.timeSlot.forEach((et,it)=>{
+        obj._schedule.week[i].timeSlot[it] = copyObjectValues(new TimeSlot(),et);
+        //now copy the matches
+        et.match.forEach((em,im)=>{
+          obj._schedule.week[i].timeSlot[it].match[im] =
+            copyObjectValues(new Match(),em);
+        });
+      });
+    });
+    //We'll now do a copy of the team preview
+    obj._teamPreview = [];
+    for(let i=0;i<this._teamPreview.length;i++){
+      obj._teamPreview.push(new TeamPreview());
+      //Use the built in copy to copy to the new object.
+      this._teamPreview[i].copy(obj._teamPreview[i]);
+    }
+    return(obj);
   }
 }
 
@@ -355,6 +436,15 @@ function excelTimeToString(timeIn) {
   //Return the string
   return (hours + ':' + min);
 }
+function copyObjectValues(objOut,objIn){
+  for(let key in objIn){
+    if (typeof key !== 'object' && !Array.isArray(key)){
+      objOut[key] = objIn[key];
+    }
+  }
+  return(objOut);
+}
 
 //Export
 module.exports.Template = Template;
+module.exports.TeamInfo = TeamInfo;
