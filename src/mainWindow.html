@@ -1,14 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta http-equiv="Content-Security-Policy" content="default-src file: 'unsafe-inline';">
   <title>Scheduler Window</title>
+  <link rel="stylesheet" type="text/css" href="./scheduler.css">
 </head>
 <body>
   <h1>Yo, its my schedule window!</h1>
-  <div id="form_step_1"></div>
   <!--Script which will handle all of the actual functionality for this window-->
-  <script>
-    require('./scheduler.js');
+  <script type = "text/javascript" src = "./scheduler.js">
+    //require('./scheduler.js');
   </script>
+  <form id="scheduleForm" action="JavaScript:outputSchedule(event)">
+    <div id="formDiv" class="formPanel" hide=true>
+
+      <!-- These are the actual input buttons for the steps in the process-->
+      <input id="one" type="radio" name="stage" checked="checked"/>
+  	  <input id="two" type="radio" name="stage"/>
+    	<input id="three" type="radio" name="stage"/>
+    	<input id="four" type="radio" name="stage"/>
+    	<input id="five" type="radio" name="stage"/>
+
+      <!-- These are the number lables for the steps in the process -->
+      <div class="stages" hide=true>
+    		<label for="one" onclick="setChecked('one')">1</label>
+    		<label for="two" onclick="setChecked('two')">2</label>
+    		<label for="three" onclick="setChecked('three')">3</label>
+    		<label for="four" onclick="setChecked('four')">4</label>
+    		<label for="five" onclick="setChecked('five')">5</label>
+    	</div>
+      <span class="progress"><span></span></span>
+      <br>
+      <button id="nextButton" onclick="nextStep()" type="button" form="scheduleForm">
+        Next
+      </button>
+
+      <!-- A panel for each step in the process. THe panels are made visible at
+      the appropriate step-->
+      <div class='panels'>
+        <div id="form_step_1" data-panel="one"> </div>
+        <div id="form_step_2" data-panel="two">
+          <h1>Schedule Information</h1>
+          <label for="start_date">Start Date</label>
+          <input type="date" id='start_date' onchange="buildScheduleTable();initByeRequestTable();">
+            <label for="start_court">First Court Number</label>
+          <input type="number" id='start_court' min=1 max=24 value=1 onchange="buildScheduleTable();initByeRequestTable();">
+          <h2 id="scheduleName"></h2>
+          <div class="scheduleTable" id="schedule_preview" data-panel="two"> </div>
+          <div class="scheduleCalendar" id="schedule_date_preview" data-panel="two"></div>
+        </div>
+        <div id="form_step_3" data-panel="three">
+          <h1>Team Information</h1>
+          <table id="teamInfoTable">
+            <thead>
+              <tr>
+                <td>Team Number </td>
+                <td>Team Name</td>
+                <td>Mapping Code</td>
+              </tr>
+            </thead>
+            <tbody id="teamInfoBody"></tbody>
+          </table>
+          <button type="button" onclick="importTeamInfo()">Import</button>
+          <!-- Tables for teams are built dynamically -->
+        </div>
+        <div id="form_step_4" data-panel="four">
+          <h1>Bye Requests</h1>
+          <div id="teamPanel" data-panel="four">
+            <table id="teamTable">
+              <thead>
+                <tr>
+                  <td>Team Name</td>
+                <tr>
+              </thead>
+              <tbody id="teamTableBody"></tbody>
+          </div>
+          <div id="byePanel" data-panel="four">
+            <table id=byeRequestTable>
+              <thead id=byeRequestHeader></thead>
+              <tbody id = byeRequestBody></tbody>
+            </table>
+            <button type="button" onclick="assignTeamNumbers()">Assign Team Numbers</button>
+          </div>
+        </div>
+          <!-- Bye requests are built dynamically as well -->
+        <div id="form_step_5" data-panel="five">
+          <h1>Final Preview</h1>
+          <div id="scheduleReviewTable" data-panel="five"></div>
+          <div id="scheduleReviewCalendar" data-panel="five"></div>
+          <div id="scheduleNightPreivew" data-panel="five"></div>
+        </div>
+      </div>
+    </div>
+  </form>
 </body>
 </html>
