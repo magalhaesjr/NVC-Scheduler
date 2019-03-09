@@ -11,10 +11,10 @@
 	width: 100%;
 }
 
-div.formPanel[hide=true] {
+.formPanel[hide=true] {
 	display: none;
 }
-div.formPanel[hide=false] {
+.formPanel[hide=false] {
 	display: block;
 }
 .stages[hide=true]{
@@ -110,7 +110,7 @@ input[name="stage"]{
 	width: calc(100% / 4 * 4);
 }
 
-.panels div {
+.panels .stepPanel{
 	display: none;
 }
 
