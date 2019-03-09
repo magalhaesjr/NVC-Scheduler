@@ -415,6 +415,11 @@ class Template {
     }
     return(obj);
   }
+  //methods for handling blackouts
+  addBlackout(inputDate){
+    //Adds a blackout in the week that equals the input date
+
+  }
 }
 
 /*****************************************************************************

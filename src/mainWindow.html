@@ -4,6 +4,8 @@
   <meta http-equiv="Content-Security-Policy" content="default-src file: 'unsafe-inline';">
   <title>Scheduler Window</title>
   <link rel="stylesheet" type="text/css" href="./scheduler.css">
+  <link rel="import" href="./calendarTemplate.html" id="calendarTemplate">
+  <link rel="stylesheet" type="text/css" href="./calendar.css">
 </head>
 <body>
   <h1>Yo, its my schedule window!</h1>
@@ -38,8 +40,8 @@
       <!-- A panel for each step in the process. THe panels are made visible at
       the appropriate step-->
       <div class='panels'>
-        <div id="form_step_1" data-panel="one"> </div>
-        <div id="form_step_2" data-panel="two">
+        <div class="stepPanel" id="form_step_1" data-panel="one"> </div>
+        <div class="stepPanel" id="form_step_2" data-panel="two">
           <h1>Schedule Information</h1>
           <label for="start_date">Start Date</label>
           <input type="date" id='start_date' onchange="buildScheduleTable();initByeRequestTable();">
@@ -47,9 +49,9 @@
           <input type="number" id='start_court' min=1 max=24 value=1 onchange="buildScheduleTable();initByeRequestTable();">
           <h2 id="scheduleName"></h2>
           <div class="scheduleTable" id="schedule_preview" data-panel="two"> </div>
-          <div class="scheduleCalendar" id="schedule_date_preview" data-panel="two"></div>
+          <div class="scheduleCalendar" id="schedule_date_preview" data-panel="two"> </div>
         </div>
-        <div id="form_step_3" data-panel="three">
+        <div class="stepPanel" id="form_step_3" data-panel="three">
           <h1>Team Information</h1>
           <table id="teamInfoTable">
             <thead>
@@ -64,7 +66,7 @@
           <button type="button" onclick="importTeamInfo()">Import</button>
           <!-- Tables for teams are built dynamically -->
         </div>
-        <div id="form_step_4" data-panel="four">
+        <div class="stepPanel" id="form_step_4" data-panel="four">
           <h1>Bye Requests</h1>
           <div id="teamPanel" data-panel="four">
             <table id="teamTable">
@@ -84,11 +86,11 @@
           </div>
         </div>
           <!-- Bye requests are built dynamically as well -->
-        <div id="form_step_5" data-panel="five">
+        <div class="stepPanel" id="form_step_5" data-panel="five">
           <h1>Final Preview</h1>
-          <div id="scheduleReviewTable" data-panel="five"></div>
+          <div class="scheduleTable" id="scheduleReviewTable" data-panel="five"></div>
           <div id="scheduleReviewCalendar" data-panel="five"></div>
-          <div id="scheduleNightPreivew" data-panel="five"></div>
+          <div id="scheduleNightPreview" data-panel="five"></div>
         </div>
       </div>
     </div>
