@@ -12,10 +12,6 @@ const TeamInfo = require('./template').TeamInfo;
 const xlsx = require('xlsx');
 const utils = require('./util.js');
 
-//variables to put in the table
-const tableHeaders = ['select','title','season','numTeams','numCourts','numWeeks','numByes',
-'minMatches','balanced','equalMatches','hasPools','description'];
-
 //Autoload the database
 let db = new Datastore({ filename: 'database/Templates.db', autoload: true });
 
@@ -30,6 +26,15 @@ let dbTemplates = [];
 let loadedTemplate;
 //Completed team information
 let leagueTeamInfo = [];
+
+//variables to put in the table
+const tableHeaders = ['select','title','season','numTeams','numCourts','numWeeks','numByes',
+'minMatches','balanced','equalMatches','hasPools','description'];
+//Headers in the schedule table
+const Headers = ['Week','Date','Message','Bye','Time','Court','Team 1','Team 2'];
+//Months as strings
+const Months = ['January','February','March','April','May','June','July','August',
+'September','October','November','December'];
 
 /*****************************************************************************
  *****                                                                   *****
@@ -131,15 +136,13 @@ function showTemplateChoices(){
 
 //Displays the whole schedule in table form for a preview
 function buildScheduleTable(){
-  //Headers in the schedule table
-  const Headers = ['Week','Date','Message','Bye','Time','Court','Team 1','Team 2'];
   //Get the schedule from the current template
   let schedule = loadedTemplate.get('schedule');
   //Starting date
   let currentDate = document.getElementById('start_date').valueAsDate;
   //set the start date as a day
   let currentDay = currentDate.getUTCDate();
-  currentDate.setDate(currentDay); //silly timezone bullshit
+  currentDate.setUTCDate(currentDay); //silly timezone bullshit
   //Starting court number
   let startCourt = document.getElementById('start_court').valueAsNumber-1;
 
@@ -189,8 +192,13 @@ function buildScheduleTable(){
     }
     //increment the date for a new week
     currentDate.setUTCDate(currentDay+7);
-    currentDay = currentDate.getDate();
+    currentDay = currentDate.getUTCDate();
   }
+
+  //Before assigning the document fragment, clone it so that it can be placed in two places
+  let c2 = c.cloneNode(true);
+
+  //Update the schedule table in step 2
   //remove any previous tables first
   let preview = document.getElementById('schedule_preview');
   if (preview.children.length>0){
@@ -199,6 +207,16 @@ function buildScheduleTable(){
   }else{
     //add to the right form
     preview.appendChild(c);
+  }
+  //update the schedule table in step 5
+  //remove any previous tables first
+  preview = document.getElementById('scheduleReviewTable');
+  if (preview.children.length>0){
+    //replace instead of appending
+    preview.replaceChild(c2,preview.children[0]);
+  }else{
+    //add to the right form
+    preview.appendChild(c2);
   }
   //reset the template with correct dates
   loadedTemplate.set('schedule',schedule);
@@ -341,6 +359,105 @@ function updateTeamInfo(){
   //Update the bye table
   initByeRequestTable();
 }
+//Initialize the calendar object
+function initCalendarObject(){
+  //Import the template from the html file
+  let templates = document.getElementById("calendarTemplate").import;
+  //Grab the actual calendar object
+  let cal = templates.getElementById("calendarObject");
+
+  //get the start date, and setup the calendar
+  let startDate = document.getElementById('start_date').valueAsDate;
+
+  //Get a pointer to the document fragment, so that we can manipulate the data
+  let doc = cal.content;
+
+  //Draw the initial month in the calendar objects
+  drawCalendar(doc,startDate);
+
+  //Now update the calendar with the actual play dates
+  updateCalendarPreview();
+}
+//This function draws the dates in the calendar objects passed in as inputs
+function drawCalendar(template,startDate){
+  //Get the first month and year of the schedule
+  let month = Months[startDate.getUTCMonth()];
+  let year = startDate.getUTCFullYear();
+  //Get a date object for this month, we need it to find the start and end days
+  //of the week
+  let thisMonth = new Date(startDate.getUTCFullYear(),startDate.getUTCMonth(),1);
+  //Set the header in the calendar as the month and year
+  template.querySelector("#currentMonth").innerHTML = month + ' ' + year.toString();
+  utils.setAttributes(template.querySelector("#currentMonth"),{'date':
+    new Date(startDate.getUTCFullYear(),startDate.getUTCMonth(),1)});
+
+  //Get the pointer to the schedule preview section on step 2
+  //Previous month counter to reset
+  let schedCalendar = document.getElementById("schedule_date_preview");
+  //Also update the calendar object in the final preview
+  let finalCalendar = document.getElementById("scheduleReviewCalendar");
+
+  //Find all of the days in the calendar an dloop through them
+  let allDays = template.querySelectorAll(".day");
+  for (let day=0;day<allDays.length;day++){
+    //Check if we are in the current month
+    if(day<thisMonth.getDay()){
+      //ALso reset the schedule counter properly
+      let sd = new Date(startDate.getUTCFullYear(),startDate.getUTCMonth(),0);
+      schedCalendar.style.counterReset = "previous-month " + (sd.getUTCDate()-thisMonth.getUTCDay()).toString() +
+        " current-month next-month";
+      finalCalendar.style.counterReset = "previous-month " + (sd.getUTCDate()-thisMonth.getUTCDay()).toString() +
+          " current-month next-month";
+
+      //Set the date of this grid cell
+      utils.setAttributes(allDays[day],{'monthClass':"last",'date':
+        new Date(sd.getUTCFullYear(),sd.getUTCMonth(),sd.getUTCDate()-thisMonth.getUTCDay()+day).toLocaleDateString()});
+    }
+    else if (thisMonth.getUTCMonth()!==startDate.getUTCMonth()){
+      utils.setAttributes(allDays[day],{'monthClass':"next",'date':thisMonth.toLocaleDateString()});
+    }
+    else{
+      utils.setAttributes(allDays[day],{'monthClass':"current",'date':thisMonth.toLocaleDateString()});
+      //Increment the day
+      thisMonth.setUTCDate(thisMonth.getUTCDate()+1);
+    }
+  }
+  //append the calendar object into the appropriate object
+  if (schedCalendar.children.length>0){
+    for(let c=0;c<schedCalendar.children.length;c++){
+      schedCalendar.replaceChild(document.importNode(template.children[c],true),
+        schedCalendar.children[c]);
+      finalCalendar.replaceChild(document.importNode(template.children[c],true),
+        finalCalendar.children[c]);
+    }
+  } else {
+    schedCalendar.appendChild(document.importNode(template,true));
+    finalCalendar.appendChild(document.importNode(template,true));
+  }
+}
+
+//This function will update the calendar object with play dates and blackouts
+//for the month
+function updateCalendarPreview(){
+  //Cycle through each day and set the appropriate properties for play days and off
+  //days
+  let allDays = document.querySelectorAll(".day");
+  let schedule = loadedTemplate.get('schedule');
+  let weeks;
+  for(let d = 0;d<allDays.length;d++){
+    //Check each week in the schedule to see if it's in the calendar view
+    weeks = schedule.week.findIndex(e=>{return(e.date===allDays[d].getAttribute('date'));});
+    if(weeks>=0){
+      //This is a play week
+      utils.setAttributes(allDays[d],{'leagueDay':false,'onclick':"toggleBlackout(event)"});
+      allDays[d].setAttribute('leagueDay',true);
+    }else{
+      utils.setAttributes(allDays[d],{'leagueDay':false,"blackout":false,
+        'onclick':""});
+    }
+  }
+
+}
 
 /*****************************************************************************
  *****                                                                   *****
@@ -368,6 +485,8 @@ function selectTemplate(dbIndex){
   initTeamInfo();
   //Create the bye requests table
   initByeRequestTable();
+  //Initialize the calendar object in the schedule preview of step 2
+  initCalendarObject();
 }
 function setChecked(id){
   document.getElementById(id).setAttribute('checked',true);
@@ -438,4 +557,12 @@ function outputSchedule(event){
   //Creates the sportsengine formatted schedule
   alert("done!");
   location.reload();
+}
+function toggleBlackout(event){
+  //Toggle the blackout value
+  event.srcElement.setAttribute('blackout',event.srcElement.getAttribute('blackout')!=="true");
+
+  //check if its a blackout
+
+
 }
