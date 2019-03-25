@@ -11,7 +11,7 @@ exports.setCellText=function (textIn,style,attributes){
   }
   //Add attributes if necessary
   for(let key in attributes){
-    block.setAttribute(key,attributes[key]);
+    cell.setAttribute(key,attributes[key]);
   }
 
   cell.appendChild(block);
