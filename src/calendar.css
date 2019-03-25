@@ -24,9 +24,13 @@ header {
 }
 
 .header-title {
+  width: 100%;
+  height: 100%;
   padding: 1rem;
 }
 .header-title h1 {
+  width: 70%;
+  display: inline-block;
   font-weight: 300;
   font-size: 1rem;
   margin: 0;
@@ -41,12 +45,44 @@ header {
 }
 .header-weekdays span {
   font-size: 0.8rem;
-  display: block;
+  display: inline-block;
   float: left;
   width: 14.28571%;
   padding: 0.5rem 0;
   text-align: center;
   text-transform: uppercase;
+}
+
+.header-title span{
+  width: 14%;
+  height: 100%;
+  display:inline-block;
+  text-align: auto;
+  padding: 0
+}
+
+.header-title a{
+  display: inline-block;
+  padding: 8px 16px;
+}
+
+.header-title a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.header-title .previous {
+  background-color: #f1f1f1;
+  color: black;
+}
+
+.header-title .next {
+  background-color: #f1f1f1;
+  color: black;
+}
+
+.header-title .round {
+  border-radius: 50%;
 }
 
 .calendar:before, .calendar:after {

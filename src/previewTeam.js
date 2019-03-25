@@ -9,7 +9,7 @@ const utils = require('./util.js');
  ****************************************************************************/
 //All the templates extracted from the Database
 let teamPreviews;
-let loadedPreview;
+const datesPerRow = 5;
 
 /*****************************************************************************
  *****                                                                   *****
@@ -20,7 +20,10 @@ let loadedPreview;
 ipcRenderer.on('init-team-preview',(e,teamPreview,teamNum)=>{
   //Set the new team preview
   teamPreviews = teamPreview;
-  console.log('relaunching...');
+
+  //Create and fill in the options for the pull down
+  initPullDown();
+
   //Now set the team to displays
   displayPreview(teamNum);
 });
@@ -35,10 +38,47 @@ ipcRenderer.on('update-team-preview',(e,teamNum)=>{
  *****                             Functions                             *****
  *****                                                                   *****
  ****************************************************************************/
+ function initPullDown()
+ {
+   const c = document.createDocumentFragment();
+
+   //Find the select id
+   let list = document.getElementById('teamNameTag');
+
+   //add each team to the list
+   let option;
+   for(let i=0;i<teamPreviews.length;i++){
+     option = document.createElement('option');
+     option.value = teamPreviews[i].teamNumber;
+     option.innerHTML = teamPreviews[i].name;
+     c.appendChild(option);
+   }
+   //append the options to the list
+   if(list.children.length>0){
+     list.replaceChild(c,list.children[0]);
+   }else{
+     list.appendChild(c);
+   }
+   //set the list as active
+   list.disable = false;
+ }
  function displayPreview(teamNum)
  {
+   //Change the title
+   let option = document.getElementById('teamNameTag');
+   if(option.selectedIndex!==teamNum-1)
+   {
+     option.selectedIndex = teamNum-1;
+     displayPreview(teamNum);
+     return;
+   }
    //Change the loaded preview
-   loadedPreview = teamPreviews[teamNum-1];
+   let loadedPreview = teamPreviews[teamNum-1];
+
+   //Find all of the dates & times that this team plays on
+   let data = findMatchData(loadedPreview);
+   let allDates = data.allDates;
+   let allTimes = data.allTimes;
 
    //create a document fragment which makes this faster
    const c = document.createDocumentFragment();
@@ -51,57 +91,116 @@ ipcRenderer.on('update-team-preview',(e,teamNum)=>{
    body.setAttribute('id',"previewTableBody");
    //append to document fragment
    c.appendChild(body);
+   document.getElementById('teamNumber').innerHTML='Team ' + loadedPreview.teamNumber.toString();
 
-   //Change the title
-   document.getElementById('teamNameTag').innerHTML=loadedPreview.name.toString();
+   //Create a row for the dates,info & one for the actual time slots
+   let row,infoRow;
+   //Create the player rows
+   let playerRow = new Array(allTimes.length);
+   //counter for number of dates in the row
+   let d = datesPerRow;
+   let nightMatch;
 
    //Now we create all of the rows and information
-   let row = document.createElement('tr');
-   body.appendChild(row);
-   //team number
-   row.appendChild(utils.setCellText('Team Number'));
-   row.appendChild(utils.setCellText(loadedPreview.teamNumber.toString()));
-   //Bye Weeks
-   row = document.createElement('tr');
-   body.appendChild(row);
-   row.appendChild(utils.setCellText('Bye Weeks'));
-   loadedPreview.byeWeeks.forEach((e)=>row.appendChild(utils.setCellText(e)));
-   //bye times
-   row = document.createElement('tr');
-   body.appendChild(row);
-   row.appendChild(utils.setCellText('Bye Times'));
-   loadedPreview.byeTimes.forEach((e)=>row.appendChild(utils.setCellText(e)));
-   //bye Requests
-   row = document.createElement('tr');
-   body.appendChild(row);
-   row.appendChild(utils.setCellText('Bye Requests'));
-   loadedPreview.byeRequests.forEach((e)=>row.appendChild(utils.setCellText(e)));
-   //play weeks
-   row = document.createElement('tr');
-   body.appendChild(row);
-   row.appendChild(utils.setCellText('Play Weeks'));
-   loadedPreview.playWeek.forEach((e)=>row.appendChild(utils.setCellText(e)));
-   //Court
-   row = document.createElement('tr');
-   body.appendChild(row);
-   row.appendChild(utils.setCellText('Court'));
-   loadedPreview.court.forEach((e)=>row.appendChild(utils.setCellText(e.toString())));
-   //Play Times
-   row = document.createElement('tr');
-   body.appendChild(row);
-   row.appendChild(utils.setCellText('Time'));
-   loadedPreview.time.forEach((e)=>row.appendChild(utils.setCellText(e)));
-   //Opponents
-   row = document.createElement('tr');
-   body.appendChild(row);
-   row.appendChild(utils.setCellText('Opponent'));
-   loadedPreview.opponents.forEach((e,i)=>{
-     let cell = utils.setCellText(e.toString(),'A');
-     cell.setAttribute('onclick',`displayPreview(${e})`);
-     row.appendChild(cell);});
+   for(let r=0;r<allDates.length;r++){
+     //If required add a new row
+     if(d===(datesPerRow)){
+       row = document.createElement('tr');
+       body.appendChild(row);
+       infoRow = document.createElement('tr');
+       body.appendChild(infoRow);
 
-   console.log('replaced');
-   //replace the body with the new Content
+       //Create all the play rows
+       for(let pr=0;pr<playerRow.length;pr++){
+         playerRow[pr]=document.createElement('tr');
+         body.appendChild(playerRow[pr]);
+       }
+         console.log(playerRow);
+       //reset the counter
+       d = 0;
+     }
+     //Add the date into the header row
+    row.appendChild(utils.setCellText(allDates[r],undefined,{'class':'tp_date',
+      'colspan':"3"}));
+    //now we add in the information about the remaining rows
+    infoRow.appendChild(utils.setCellText('Time',undefined,{'class':'tp_info'}));
+    infoRow.appendChild(utils.setCellText('Ct',undefined,{'class':'tp_info'}));
+    infoRow.appendChild(utils.setCellText('Opp',undefined,{'class':'tp_info'}));
+
+    //Now we fill in the play information
+    for(let p=0;p<allTimes.length;p++){
+        //Check what type of night it is
+        if(loadedPreview.blackouts.some(e=>{return(e===allDates[r]);})){
+          playerRow[p].appendChild(utils.setCellText('',undefined,{'class':'tp_blackout',
+        'colspan':"3"}));
+      }else if (loadedPreview.byeWeeks.some(e=>{return(e===allDates[r]);})){
+          playerRow[p].appendChild(utils.setCellText('',undefined,{'class':'tp_bye',
+        'colspan':"3"}));
+        }else{
+          nightMatch = loadedPreview.playWeek.findIndex((e,ind)=>{
+            return(e===allDates[r] && loadedPreview.time[ind]===allTimes[p]);
+          });
+          if (nightMatch==-1){continue;}
+          playerRow[p].appendChild(utils.setCellText(allTimes[p],undefined,{'class':'tp_play'}));
+          playerRow[p].appendChild(utils.setCellText(
+            loadedPreview.court[nightMatch].toString(),undefined,{'class':'tp_play'}));
+          playerRow[p].appendChild(utils.setCellText(
+            loadedPreview.opponents[nightMatch].toString(),undefined,{'class':'tp_play',
+            'onclick':`displayPreview(${loadedPreview.opponents[nightMatch]})`}));
+        }
+    }
+
+    //Increment the counter
+    d++;
+
+   }
    table.replaceChild(c,document.getElementById('previewTableBody'));
-   console.log('done');
  }
+ //Goes through the team preview and extracts a sorted array of all play dates
+ //for the league
+ function findMatchData(preview){
+   let allDates=[],allTimes=[];
+
+   //Find all the unique play dates
+   //Cycle through all of the play dates first
+   allDates = copyUnique(preview.playWeek,allDates);
+   //Now the blackouts
+   allDates = copyUnique(preview.blackouts,allDates);
+   //Now the bye weeks
+   allDates = copyUnique(preview.byeWeeks,allDates);
+   //We now sort it in order
+   allDates = allDates.sort(function(a,b){
+  // Turn your strings into dates, and then subtract them
+  // to get a value that is either negative, positive, or zero.
+  return(new Date(a) - new Date(b));});
+  console.log(allDates);
+   //Find all the unique play times
+   //Cycle through all of the play times first
+   allTimes = copyUnique(preview.time,allTimes);
+   //Now the byes
+   allTimes = copyUnique(preview.byeTimes,allTimes);
+   //We now sort it in order
+   allTimes = allTimes.sort();
+
+   //Return both data sets
+   return({'allDates':allDates,'allTimes':allTimes});
+ }
+ //Utility  function
+ function copyUnique(array,data){
+   array.forEach(e=>{
+     if(data.findIndex(ei=>{return(ei===e);})<0){
+       data.push(e);
+     }
+   });
+   return(data);
+ }
+ /*****************************************************************************
+  *****                                                                   *****
+  *****                             Callbacks                             *****
+  *****                                                                   *****
+  ****************************************************************************/
+  function changePreviewTeam(){
+    //get the selected preview team and then update the preview
+    let handle = document.getElementById('teamNameTag');
+    displayPreview(handle.options[handle.selectedIndex].value);
+  }
