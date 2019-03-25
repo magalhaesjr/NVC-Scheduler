@@ -7,7 +7,11 @@
 </head>
 <body>
   <h1> Team Preview </h1>
-  <h2 id="teamNameTag">Team Name</h2>
+  <!--<h2 id="teamNameTag">Team Name</h2>-->
+  <label for="teamNameTag">Selected Team</label>
+  <select id="teamNameTag" disable=true onchange="changePreviewTeam()">
+  </select>
+  <h2 id="teamNumber">Team Number</h2>
   <script type = "text/javascript" src="./previewTeam.js"></script>
   <!--Build the table for team previews without any of the details -->
   <table id = "previewTable">

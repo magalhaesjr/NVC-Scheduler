@@ -29,6 +29,7 @@ class Week {
     this.weekNum = weeknum;
     this.date = date;
     this.message = message;
+    this.blackout = false;
     this.timeSlot = [];
   }
 }
@@ -50,6 +51,7 @@ class TeamPreview {
     this.byeWeeks = [];
     this.byeTimes = [];
     this.playWeek = [];
+    this.blackouts = [];
     this.time = [];
     this.byeRequests = [];
     this.opponents = [];
@@ -321,6 +323,10 @@ class Template {
     }
     //Loop through all the Weeks and fill in all teams
     for (let w = 0; w < this._numWeeks; w++) {
+      //Check if it's a blackout, if so then add it in
+      if(this._schedule.week[w].blackouts){
+        this._teamPreview.forEach(e=>{e.blackouts.push(this._schedule.week[w].date);});
+      }
       //now look at each timeslot of the week
       for (let t = 0; t < this._schedule.week[w].timeSlot.length; t++) {
         ts = this._schedule.week[w].timeSlot[t];
@@ -361,9 +367,11 @@ class Template {
         for(let i=0;i<this._teamPreview.length;i++){
           this._teamPreview[i].playWeek.forEach(function(element,ind){
             index = data.findIndex(function(e) {return e===element;});
+            //if(index>=0){
             this._teamPreview[i].playWeek[ind] = this._schedule.week[index].date;},this);
             this._teamPreview[i].byeWeeks.forEach(function(element,ind){
               index = data.findIndex(function(e) {return e===element;});
+              //if(index>=0){
               this._teamPreview[i].byeWeeks[ind] = this._schedule.week[index].date;},this);
         }
         break;
@@ -418,7 +426,95 @@ class Template {
   //methods for handling blackouts
   addBlackout(inputDate){
     //Adds a blackout in the week that equals the input date
+    //Find the schedule week that is now a blackout
+    let index = this._schedule.week.findIndex(e=>{return (e.date===inputDate);});
 
+    //Check the condition
+    if(index==-1){alert('This date is not a league date');return;}
+
+    //Create a new week for the blackout
+    let blackOut = new Week(index+1, inputDate,'Blackout');
+    blackOut.blackout = true;
+
+    //Now insert the blackout week into the schedule
+    this._schedule.week.splice(index,0,blackOut);
+
+    let oldDates = [];
+    this._schedule.week.slice(0,index).forEach(e=>{
+      if(e.timeSlot.length>0){
+      oldDates.push(e.date);}else{
+        oldDates.push('20/20/2000');
+      }});
+
+    //Push blackout
+    oldDates.push('20/20/2000');
+
+    this.updateSchedule(index+1,oldDates);
+
+    //Add this blackout to the team previews
+    this._teamPreview.forEach(e=>{e.blackouts.push(inputDate);});
+  }
+  removeBlackout(inputDate){
+    //removes a blackout in the week that equals the input date
+    //Find the schedule week that is now a blackout
+    let index = this._schedule.week.findIndex(e=>{return (e.date===inputDate);});
+
+    //Check the condition
+    if(index==-1){alert('This date is not a league date');return;}
+
+    let oldDates = [];
+    this._schedule.week.slice(0,index).forEach(e=>{
+      if(e.timeSlot.length>0){
+      oldDates.push(e.date);}else{
+        oldDates.push('20/20/2000');
+      }});
+
+    //Now remove the blackout week from the schedule
+    this._schedule.week.splice(index,1);
+
+    //Update schedule
+    this.updateSchedule(index,oldDates);
+
+    //Remove blackouts from team previews
+    this._teamPreview.forEach(e=>{
+      e = e.blackouts.filter(b=>{
+        return(b!==inputDate);
+      });
+    });
+  }
+  updateSchedule(index,oldDates){
+    //Where to start the rescheduling
+    let startDate = new Date(Date.parse(this._schedule.week[index-1].date));
+    startDate.setUTCDate(startDate.getUTCDate()+7);
+    //We now reschedule the play weeks in order
+    let w = index;
+    let bindex;
+    for(let i=index;i<this._schedule.week.length;i++){
+      oldDates.push(this._schedule.week[i].date);
+      //Check if it's a blackout, if it is, we need to leave it as is
+      if (this._schedule.week[i].blackout){oldDates[oldDates.length-1]='20/20/2000';continue;}
+
+      //incremenet week number
+      w++;
+
+      //Check to see if any this matches a previous blackout
+      bindex = this._schedule.week.findIndex(e=>{return (e.date===startDate.toLocaleDateString());});
+      while(bindex>0 && bindex<i){
+        this._schedule.week[bindex].weekNum = w;
+        startDate.setUTCDate(startDate.getUTCDate()+7);
+        w++;
+        bindex = this._schedule.week.findIndex(e=>{return (e.date===startDate.toLocaleDateString());});
+      }
+      this._schedule.week[i].weekNum = w;
+      this._schedule.week[i].date = startDate.toLocaleDateString();
+      startDate.setUTCDate(startDate.getUTCDate()+7);
+    }
+
+    //Update team previews
+    this.updateTeamPreview('date',oldDates);
+
+    //Now properly order the schedule
+    this._schedule.week = this._schedule.week.sort((a,b)=>{return(a.weekNum-b.weekNum);});
   }
 }
 

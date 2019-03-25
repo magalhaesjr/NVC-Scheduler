@@ -121,3 +121,60 @@ input[name="stage"]{
 #five:checked ~ .panels [data-panel="five"] {
 	display: block;
 }
+
+/* For bye Requests*/
+.requestTeam td{
+	text-align: center;
+}
+.byeRequestCell{
+	height: 1rem;
+	display: inline-block;
+}
+.byeRequestCell[byeType="1"]{
+	background-color: green;
+	border-color: green;
+}
+.byeRequestCell[byeType="2"]{
+	background-color: orange;
+	border-color: orange;
+}
+#newByeBtn {
+	content: '\002b';
+	background-color: #4CAF50;
+	border-color: black;
+	border-style: solid;
+	boder-radius: 2px;
+	font-size: 1rem;
+	color: white;
+	border-radius: 0.6rem;
+	height: 20px;
+	width: 20px;
+	position: relative;
+	cursor: pointer;
+	transition: 0.3s;
+}
+#newByeBtn:hover {background-color: #3e8e41}
+#newByeBtn:after {
+  content: " ";
+  position: absolute;
+  display: block;
+  background-color: #fff;
+  height: 10px;
+  margin-top: -5px;
+  top: 50%;
+  left: 7px;
+  right: 7px;
+  z-index: 9;
+}
+#newByeBtn:before {
+  content: " ";
+  position: absolute;
+  display: block;
+  background-color: #fff;
+  width: 10px;
+  margin-left: -5px;
+  left: 50%;
+  top: 7px;
+  bottom: 7px;
+  z-index: 9;
+}
