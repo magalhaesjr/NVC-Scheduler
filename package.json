@@ -11,6 +11,7 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "electron": "^4.0.1",
+    "munkres-js": "^1.2.2",
     "nedb": "^1.8.0",
     "nodegit": "^0.23.0",
     "xlsx": "^0.14.1"

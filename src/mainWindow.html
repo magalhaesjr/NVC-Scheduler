@@ -13,7 +13,7 @@
   <script type = "text/javascript" src = "./scheduler.js">
     //require('./scheduler.js');
   </script>
-  <form id="scheduleForm" action="JavaScript:outputSchedule(event)">
+  <form id="scheduleForm" action="JavaScript:outputSchedule()">
     <div id="formDiv" class="formPanel" hide=true>
 
       <!-- These are the actual input buttons for the steps in the process-->
@@ -23,7 +23,7 @@
     	<input id="four" type="radio" name="stage"/>
     	<input id="five" type="radio" name="stage"/>
 
-      <!-- These are the number lables for the steps in the process -->
+      <!-- These are the number labels for the steps in the process -->
       <div class="stages" hide=true>
     		<label for="one" onclick="setChecked('one')">1</label>
     		<label for="two" onclick="setChecked('two')">2</label>
@@ -44,7 +44,7 @@
         <div class="stepPanel" id="form_step_2" data-panel="two">
           <h1>Schedule Information</h1>
           <label for="start_date">Start Date</label>
-          <input type="date" id='start_date' onchange="buildScheduleTable();initByeRequestTable();">
+          <input type="date" id='start_date' onchange="buildScheduleTable();initByeRequestTable();updateCalendarPreview();">
             <label for="start_court">First Court Number</label>
           <input type="number" id='start_court' min=1 max=24 value=1 onchange="buildScheduleTable();initByeRequestTable();">
           <h2 id="scheduleName"></h2>
@@ -81,6 +81,7 @@
             <table id=byeRequestTable>
               <thead id=byeRequestHeader></thead>
               <tbody id = byeRequestBody></tbody>
+
             </table>
             <button type="button" onclick="assignTeamNumbers()">Assign Team Numbers</button>
           </div>
