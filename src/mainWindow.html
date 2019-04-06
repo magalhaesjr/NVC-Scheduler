@@ -8,7 +8,7 @@
   <link rel="stylesheet" type="text/css" href="./calendar.css">
 </head>
 <body>
-  <h1>Yo, its my schedule window!</h1>
+  <h1>NVC Scheduler</h1>
   <!--Script which will handle all of the actual functionality for this window-->
   <script type = "text/javascript" src = "./scheduler.js">
     //require('./scheduler.js');
@@ -33,9 +33,11 @@
     	</div>
       <span class="progress"><span></span></span>
       <br>
-      <button id="nextButton" onclick="nextStep()" type="button" form="scheduleForm">
-        Next
+      <div align="center">
+      <button class="transitionbutton" id="nextButton" onclick="nextStep()" type="button" form="scheduleForm">
+        <span>Next</span>
       </button>
+    </div>
 
       <!-- A panel for each step in the process. THe panels are made visible at
       the appropriate step-->
@@ -63,7 +65,7 @@
             </thead>
             <tbody id="teamInfoBody"></tbody>
           </table>
-          <button type="button" onclick="importTeamInfo()">Import</button>
+          <button class="pushbutton" type="button" onclick="importTeamInfo()">Import</button>
           <!-- Tables for teams are built dynamically -->
         </div>
         <div class="stepPanel" id="form_step_4" data-panel="four">
@@ -83,7 +85,7 @@
               <tbody id = byeRequestBody></tbody>
 
             </table>
-            <button type="button" onclick="assignTeamNumbers()">Assign Team Numbers</button>
+            <button class="pushbutton" type="button" onclick="assignTeamNumbers()">Assign Team Numbers</button>
           </div>
         </div>
           <!-- Bye requests are built dynamically as well -->

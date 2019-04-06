@@ -1,3 +1,10 @@
+h1 {
+	font-family : georgia, sans-serif;
+	font-weight: 300;
+	text-align: center;
+	line-height: 1;
+}
+
 .stages {
 	font-size: 0;
 	text-align: justify;
@@ -27,9 +34,70 @@ input[name="stage"]{
 	display: none;
 }
 
+/*Push buttons */
+.pushbutton {
+	border-width: 0;
+	cursor: pointer;
+	text-align: center;
+	display: block;
+	font-size: 20px;
+	font-family: georgia, sans-serif;
+	font-weight: bold;
+	color: white;
+	background-color: #F76A6A;
+	padding: 5px 30px;
+	box-shadow: 4px 4px 0 rgba(200,200,200,0.6);
+}
+.pushbutton:hover {
+	background-color: #CD5959;
+}
+.pushbutton:active{
+	background-color: #CD5959;
+	  box-shadow: 2px 2px #666;
+	  transform: translateX(2px), translateY(2px);
+}
+/*next and submit buttons */
+.transitionbutton {
+	border-width: 0;
+	cursor: pointer;
+	text-align: center;
+	display: inline-block;
+	font-size: 20px;
+	font-family: georgia, sans-serif;
+	font-weight: bold;
+	color: white;
+	background-color: #F76A6A;
+	padding: 5px 30px;
+	transition: all 0.5s;
+	margin: 5px;
+}
+.transitionbutton span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+.transitionbutton span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -30px;
+  transition: 0.5s;
+}
+.transitionbutton:hover span {
+  padding-right: 0px;
+}
+
+.transitionbutton:hover span:after {
+  opacity: 1;
+  right: -20px;
+}
+/*Settings for the label. Also controls the settings for the label Before
+the one that is checked*/
 .stages label {
-	background: #ffffff;
-	border: solid 5px #c0c0c0;
+	background: #4CAF50;
+	border: solid 5px #4CAF50;
 	border-radius: 50%;
 	cursor: pointer;
 	display: inline-block;
@@ -50,31 +118,36 @@ input[name="stage"]{
 	user-select: none;
 }
 
+/*places a checkmark after the number label*/
 .stages label:after {
 	content: '\2713';
-	color: #0cc39f;
+	color: white;
+	background-color: #4CAF50;
+	height: 10px;
+	line-height: 50px;
 	display: inline-block;
 	font-size: 16px;
 }
 
+/* settings for the label which is checked*/
 #one:checked ~ .stages label[for="one"],
 #two:checked ~ .stages label[for="two"],
 #three:checked ~ .stages label[for="three"],
 #four:checked ~ .stages label[for="four"],
 #five:checked ~ .stages label[for="five"] {
-	border-color: #0cc39f;
-}
-
-.stages label.active{
-	border-color: purple !important;
+	border-color: #4CAF50;
+	background : white;
+	color : black;
+	font-size: 1rem;
 }
 
 #one:checked ~ .stages label,
-#two:checked ~ .stages label[for="one"] ~ label,
-#three:checked ~ .stages label[for="two"] ~ label,
-#four:checked ~ .stages label[for="three"] ~ label,
-#five:checked ~ .stages label[for="four"] ~ label {
+#two:checked ~ .stages label[for="two"] ~ label,
+#three:checked ~ .stages label[for="three"] ~ label,
+#four:checked ~ .stages label[for="four"] ~ label,
+#five:checked ~ .stages label[for="five"] ~ label {
 	font-size: 1rem;
+	background: white;
 }
 
 #one:checked ~ .stages label:after,
@@ -86,28 +159,28 @@ input[name="stage"]{
 }
 
 .progress > span {
-	background: #c0c0c0;
+	background: #a0a0a0;
 	display: inline-block;
 	height: 5px;
-	transform: translateY(-2.75em);
+	transform: translateY(-34px) translateX(12.5px);
 	transition: 0.3s;
 	width: 0;
 }
 
 #two:checked ~ .progress span {
-	width: calc(100% / 4 * 1);
+	width: calc(95% / 4 * 1);
 }
 
 #three:checked ~ .progress span {
-	width: calc(100% /4 * 2);
+	width: calc(95% /4 * 2);
 }
 
 #four:checked ~ .progress span {
-	width: calc(100% / 4 * 3);
+	width: calc(95% / 4 * 3);
 }
 
 #five:checked ~ .progress span {
-	width: calc(100% / 4 * 4);
+	width: calc(95% / 4 * 4);
 }
 
 .panels .stepPanel{
@@ -152,6 +225,9 @@ input[name="stage"]{
 	position: relative;
 	cursor: pointer;
 	transition: 0.3s;
+}
+#newByeBtn[disabled], #newByeBtn[disabled]:hover{
+	background-color: red;
 }
 #newByeBtn:hover {background-color: #3e8e41}
 #newByeBtn:after {
