@@ -759,6 +759,9 @@ function addByeRow() {
   });
   //inssert the row
   body.insertBefore(row, document.getElementById('newByeBtn').parentNode);
+  if (body.children.length>loadedTemplate.get('teamPreview').length){
+    document.getElementById('newByeBtn').disabled = true;
+  }
 }
 
 function launchTeamPreview(teamNum) {
@@ -776,13 +779,13 @@ function nextStep() {
   if (step === 4) {
     step = 4;
     let nextBtn = document.getElementById("nextButton");
-    nextBtn.innerHTML = "Submit";
+    nextBtn.innerHTML = "<span> Submit</span>";
   } else if (step > 4) {
     step = 4;
     document.getElementById("nextButton").setAttribute('type', "submit");
   } else {
     let nextBtn = document.getElementById("nextButton");
-    nextBtn.innerHTML = "Next";
+    nextBtn.innerHTML = "<span>Next</span>";
     nextBtn.setAttribute('type', "button");
   }
   button.item(step).checked = "checked";
@@ -878,19 +881,17 @@ function selectTemplate(dbIndex) {
 }
 
 function setChecked(id) {
-  document.getElementById(id).setAttribute('checked', true);
+  let button = document.getElementById(id);
+  button.setAttribute('checked', true);
   //Also do next step
-  let button = document.querySelectorAll('.formPanel input[name="stage"]');
-  let step = Array.from(button).findIndex(e => {
-    return (e.checked);
-  });
-  if (step === 4) {
+  let step = Number(button.labels[0].innerText);
+  if (step === 5) {
     let nextBtn = document.getElementById("nextButton");
-    nextBtn.innerHTML = "Submit";
+    nextBtn.innerHTML = "<span>Submit</span>";
     nextBtn.setAttribute('type', "button");
   } else {
     let nextBtn = document.getElementById("nextButton");
-    nextBtn.innerHTML = "Next";
+    nextBtn.innerHTML = "<span>Next</span>";
     nextBtn.setAttribute('type', "button");
   }
 }
