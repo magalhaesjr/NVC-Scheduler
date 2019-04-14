@@ -3,6 +3,7 @@
 
 //need the remote library for electron function references in the main thread
 const {remote,ipcRenderer} = require('electron');
+const path = require('path');
 const xlsx = require('xlsx');
 //Database
 const Datastore = require('nedb');
@@ -12,9 +13,15 @@ const Template = require('../template').Template;
 //variables to put in the table
 const tableHeaders = ['title','season','numTeams','numCourts','numWeeks','numByes',
 'minMatches','balanced','equalMatches','hasPools','description'];
+//columns that are numbers
+const numericHeaders = ['numTeams','numCourts','numWeeks','numByes','minMatches'];
+//Columns that are booleans
+const boolHeaders = ['balanced','equalMatches','hasPools'];
+//columns that can be edited
+const inputHeaders = ['title','hasPools','description'];
 
 //Autoload the database
-let db = new Datastore({ filename: 'database/Templates.db', autoload: true });
+let db = new Datastore({ filename: path.join(path.dirname(__dirname), '../extraResources','Templates.db'), autoload: true });
 //All the templates extracted from the Database
 let dbTemplates = [];
 
@@ -133,6 +140,7 @@ function drawTemplateTable(){
   newBody.setAttribute("id",'ttBody');
   //Add to the document fragment
   c.appendChild(newBody);
+  let inCell;
   //now add rows to the newBody from the dbTemplates structure
   for(let i=0;i<dbTemplates.length;i++){
     //add a row
@@ -140,9 +148,29 @@ function drawTemplateTable(){
     for(let h=0;h<tableHeaders.length;h++){
       let cell = document.createElement("td");
       let text = dbTemplates[i].get(tableHeaders[h]);
-      let celltext = document.createTextNode(text!=null?text.toString():'none');
+      //if this is editable you need to add an input field
+      if (inputHeaders.some(e=>{return(e===tableHeaders[h]);})){
+        inCell = document.createElement("INPUT");
+        inCell.setAttribute('onchange',`updateRecord(event)`);
+        inCell.setAttribute('Template',i);
+        inCell.setAttribute('Field',tableHeaders[h]);
+        if (numericHeaders.some(e=>{return(e===tableHeaders[h]);})){
+          inCell.type = 'number';
+          inCell.value = Number(substring(text,0,4));
+        }
+        else if (boolHeaders.some(e=>{return(e===tableHeaders[h]);})){
+          inCell.type = 'checkbox';
+          inCell.checked = text;
+        }
+        else{
+          inCell.value = text;
+        }
+      }
+      else{
+        inCell = document.createTextNode(text!=null?text.toString():'none');
+      }
       //append to the cell
-      cell.appendChild(celltext);
+      cell.appendChild(inCell);
       //append to rows
       row.appendChild(cell);
     }
@@ -151,4 +179,32 @@ function drawTemplateTable(){
   }
   //Now add the new body to the table
   table.appendChild(c);
+}
+function updateRecord(event){
+
+  let t = event.target;
+  let newval;
+  if (t.type==='checkbox'){
+    newval = t.checked;
+  }
+  else {
+    newval = t.value;
+  }
+  let i = Number(t.getAttribute('Template'));
+  let field = t.getAttribute('Field');
+  switch(field){
+    case('hasPools'):
+    db.update({_id: dbTemplates[i].get('id')},
+      { $set: { hasPools : newval}},{},function(){});
+    break;
+    case('description'):
+    db.update({_id: dbTemplates[i].get('id')},
+      { $set: { description : newval}},{},function(){});
+    break;
+    case('title'):
+    db.update({_id: dbTemplates[i].get('id')},
+      { $set: { title : newval}},{},function(){});
+    break;
+  }
+  //console.log(id);
 }

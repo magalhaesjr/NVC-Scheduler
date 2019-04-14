@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
   <meta http-equiv="Content-Security-Policy" content="default-src file: 'unsafe-inline';">
+  <link rel="stylesheet" type="text/css" href="./templateTool.css">
   <title>Document</title>
 </head>
 <body>
+  <script type = "text/javascript" src = "./templateTool.js"></script>
   <h1> Templates Currently In Database </h1>
   <table id="templateTable">
     <thead>
@@ -24,9 +26,5 @@
     </thead>
     <tbody id="ttBody"></tbody>
   </table>
-  <!-- Script which handles all of the functionality in here -->
-  <script>
-    require('./templateTool.js');
-  </script>
 </body>
 </html>
