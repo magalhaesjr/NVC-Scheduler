@@ -93,6 +93,18 @@ ipcRenderer.on('update-team-preview',(e,teamNum)=>{
    c.appendChild(body);
    document.getElementById('teamNumber').innerHTML='Team ' + loadedPreview.teamNumber.toString();
 
+   //Add in all the bye requests for the team
+   console.log(loadedPreview);
+   let br = document.getElementById('teamByeRequest');
+   br.innerText = "Bye Requests : ";
+   if (loadedPreview.byeRequests.length===0){
+     br.innerText = br.innerText + ' none';
+   }else {
+     for(let i=0;i<loadedPreview.byeRequests.length;i++){
+       br.innerText = br.innerText + ' ' + loadedPreview.byeRequests[i];
+     }
+   }
+
    //Create a row for the dates,info & one for the actual time slots
    let row,infoRow;
    //Create the player rows
@@ -115,7 +127,6 @@ ipcRenderer.on('update-team-preview',(e,teamNum)=>{
          playerRow[pr]=document.createElement('tr');
          body.appendChild(playerRow[pr]);
        }
-         console.log(playerRow);
        //reset the counter
        d = 0;
      }
@@ -133,20 +144,22 @@ ipcRenderer.on('update-team-preview',(e,teamNum)=>{
         if(loadedPreview.blackouts.some(e=>{return(e===allDates[r]);})){
           playerRow[p].appendChild(utils.setCellText('',undefined,{'class':'tp_blackout',
         'colspan':"3"}));
-      }else if (loadedPreview.byeWeeks.some(e=>{return(e===allDates[r]);})){
+      }else if (loadedPreview.byeWeeks.some((e,ind)=>{
+        return(e===allDates[r] && loadedPreview.byeTimes[ind]===allTimes[p]);})){
           playerRow[p].appendChild(utils.setCellText('',undefined,{'class':'tp_bye',
         'colspan':"3"}));
         }else{
           nightMatch = loadedPreview.playWeek.findIndex((e,ind)=>{
             return(e===allDates[r] && loadedPreview.time[ind]===allTimes[p]);
           });
-          if (nightMatch==-1){continue;}
+          if (nightMatch==-1){playerRow[p].appendChild(utils.setCellText('',undefined,{'class':'tp_bye',
+        'colspan':"3"}));continue;}
           playerRow[p].appendChild(utils.setCellText(allTimes[p],undefined,{'class':'tp_play'}));
           playerRow[p].appendChild(utils.setCellText(
             loadedPreview.court[nightMatch].toString(),undefined,{'class':'tp_play'}));
           playerRow[p].appendChild(utils.setCellText(
             loadedPreview.opponents[nightMatch].toString(),undefined,{'class':'tp_play',
-            'onclick':`displayPreview(${loadedPreview.opponents[nightMatch]})`}));
+            'onclick':`displayPreview(${loadedPreview.opponents[nightMatch]})`,'link':true}));
         }
     }
 
