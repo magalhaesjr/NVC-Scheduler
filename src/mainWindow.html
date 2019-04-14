@@ -44,17 +44,17 @@
       <div class='panels'>
         <div class="stepPanel" id="form_step_1" data-panel="one"> </div>
         <div class="stepPanel" id="form_step_2" data-panel="two">
-          <h1>Schedule Information</h1>
+          <h2 text-align=center>Schedule Information</h2>
           <label for="start_date">Start Date</label>
           <input type="date" id='start_date' onchange="buildScheduleTable();initByeRequestTable();updateCalendarPreview();">
             <label for="start_court">First Court Number</label>
           <input type="number" id='start_court' min=1 max=24 value=1 onchange="buildScheduleTable();initByeRequestTable();">
-          <h2 id="scheduleName"></h2>
-          <div class="scheduleTable" id="schedule_preview" data-panel="two"> </div>
-          <div class="scheduleCalendar" id="schedule_date_preview" data-panel="two"> </div>
+          <h2 id="scheduleName" text-align="center"></h2>
+          <div class="scheduleTable" id="schedule_preview"> </div>
+          <div class="scheduleCalendar" id="schedule_date_preview"> </div>
         </div>
         <div class="stepPanel" id="form_step_3" data-panel="three">
-          <h1>Team Information</h1>
+          <h2 text-align="center">Team Information</h2>
           <table id="teamInfoTable">
             <thead>
               <tr>
@@ -65,35 +65,39 @@
             </thead>
             <tbody id="teamInfoBody"></tbody>
           </table>
+          <div display="block">
           <button class="pushbutton" type="button" onclick="importTeamInfo()">Import</button>
+        </div>
           <!-- Tables for teams are built dynamically -->
         </div>
         <div class="stepPanel" id="form_step_4" data-panel="four">
-          <h1>Bye Requests</h1>
-          <div id="teamPanel" data-panel="four">
+          <h2 text-align="center">Bye Requests</h2>
+          <div id="teamPanel" display="block">
             <table id="teamTable">
               <thead>
                 <tr>
+                  <td>Team #</td>
                   <td>Team Name</td>
                 <tr>
               </thead>
               <tbody id="teamTableBody"></tbody>
+            </table>
           </div>
-          <div id="byePanel" data-panel="four">
+          <div id="byePanel">
             <table id=byeRequestTable>
               <thead id=byeRequestHeader></thead>
               <tbody id = byeRequestBody></tbody>
-
             </table>
+            <br>
             <button class="pushbutton" type="button" onclick="assignTeamNumbers()">Assign Team Numbers</button>
           </div>
         </div>
           <!-- Bye requests are built dynamically as well -->
         <div class="stepPanel" id="form_step_5" data-panel="five">
-          <h1>Final Preview</h1>
-          <div class="scheduleTable" id="scheduleReviewTable" data-panel="five"></div>
-          <div id="scheduleReviewCalendar" data-panel="five"></div>
-          <div id="scheduleNightPreview" data-panel="five"></div>
+          <h2 text-align="center">Final Preview</h2>
+          <div class="scheduleTable" id="scheduleReviewTable"></div>
+          <div id="scheduleReviewCalendar" class="scheduleCalendar"></div>
+          <div id="scheduleNightPreview"></div>
         </div>
       </div>
     </div>

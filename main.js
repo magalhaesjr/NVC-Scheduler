@@ -1,3 +1,4 @@
+if (require('electron-squirrel-startup')) return;
 /*Import required modules*/
 const electron = require('electron');
 const path = require('path');
@@ -11,11 +12,20 @@ const {
   ipcMain,
   dialog
 } = electron;
+//handle setupevents as quickly as possible
+ const setupEvents = require('./installers/setupEvents')
+ if (setupEvents.handleSquirrelEvent()) {
+    // squirrel event handled and app will exit in 1000ms, so don't do anything else
+    app.quit();
+ }
+
+
 
 //Define an environment variable to discern the platform (useful for MAC specific
 //crap)
 process.env.ISMAC_ENV = process.platform == 'darwin';
-process.env.NODE_ENV = 'development';
+process.env.NODE_ENV = 'release';
+//process.env.NODE_ENV = 'development';
 
 //All windows should be managed from this file
 //main window variable

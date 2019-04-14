@@ -6,6 +6,7 @@ const {
   remote,
   ipcRenderer
 } = require('electron');
+const path = require('path');
 //dialog window is from the remote class
 const dialog = remote.dialog;
 //File writing from remote class
@@ -23,7 +24,7 @@ const munkres = require('munkres-js');
 
 //Autoload the database
 let db = new Datastore({
-  filename: 'database/Templates.db',
+  filename: path.join(path.dirname(__dirname), 'extraResources','Templates.db'),
   autoload: true
 });
 
@@ -41,10 +42,14 @@ let leagueTeamInfo = [];
 
 //variables to put in the table
 const tableHeaders = ['select', 'title', 'season', 'numTeams', 'numCourts', 'numWeeks', 'numByes',
-  'minMatches', 'balanced', 'equalMatches', 'hasPools', 'description'
-];
+  'minMatches', 'balanced', 'equalMatches', 'hasPools', 'description'];
+const tableLabels = ['Select', 'Title', 'Season', 'Teams', 'Cts', 'Weeks', 'Byes',
+    'MinGames', 'Balanced', 'Equal', 'Pools', 'Description'];
+
+//Columns that are booleans
+const boolHeaders = ['balanced','equalMatches','hasPools'];
 //Headers in the schedule table
-const Headers = ['Week', 'Date', 'Message', 'Bye', 'Time', 'Court', 'Team 1', 'Team 2'];
+const Headers = ['Week', 'Date', 'Message', 'Bye', 'Time', 'Court', 'T1', 'T2'];
 //Months as strings
 const Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
   'September', 'October', 'November', 'December'
@@ -86,13 +91,13 @@ function assignTeamNumbers() {
 
   //Initial cost for missed byes
   let costWeights = Array.from(Array(teamPreviews.length),
-      _=>Array(loadedTemplate.get('numWeeks')).fill(0));
+      _=>Array(schedule.week.length).fill(0));
   let costPrimary;
   let costSecondary = 5;
   let costStep = 0.1;
 
   //Vars for the loops
-  let teamNumber,cell,byes,preview,req;
+  let teamNumber,cell,byes,preview,req,weekInd;
 
   //Loop on all of the requests and add them to the team preview
   for (let r=0;r<requests.length;r++) {
@@ -116,13 +121,15 @@ function assignTeamNumbers() {
       //if bye type is >0 then add it to the team's bye request
       if(Number(b.getAttribute('byeType'))===1){
         preview.byeRequests.push(b.getAttribute('date'));
+        //find week index
+        weekInd = schedule.week.findIndex(e=>{return(e.date===b.getAttribute('date'));});
         //fill in the cost weights
-        costWeights[teamNumber-1][c] = costPrimary;
+        costWeights[teamNumber-1][weekInd] = costPrimary;
         costPrimary -= requests.length*costStep;
       }else if (Number(b.getAttribute('byeType'))===2){
         preview.byeRequests.push(b.getAttribute('date'));
         //fill in the cost weights
-        costWeights[teamNumber-1][c] = costSecondary;
+        costWeights[teamNumber-1][weekInd] = costSecondary;
       }
     }
   }
@@ -133,7 +140,18 @@ function assignTeamNumbers() {
       _=>Array(teamPreviews.length).fill(0));
   let localCost;
 
+  //For copying the bye requests properly
+  let oldRequest=[];
+
+  for(let t=0;t<teamPreviews.length;t++) {
+  oldRequest.push(teamPreviews[t].byeRequests);
+}
+
   for (let w=0;w<schedule.week.length;w++) {
+    //Don't do this for a blackout obviously
+    if (schedule.week[w].blackout){
+      continue;
+    }
     //loop through each team number
     for(let t=0;t<teamPreviews.length;t++) {
       //if the team has a bye on this night, then the cost is 0, otherwise Pull
@@ -156,17 +174,13 @@ function assignTeamNumbers() {
   let table = document.getElementById('teamInfoBody');
   for(let r=0;r<table.children.length;r++){
     //change the team name to the new one
-    table.children[teamInd[r][1]].children[1].value = leagueTeamInfo[r].name;
-    table.children[teamInd[r][1]].children[2].value = leagueTeamInfo[r].mappingCode;
+    table.children[teamInd[r][1]].children[1].children[0].value = leagueTeamInfo[r].name;
+    table.children[teamInd[r][1]].children[2].children[0].value = leagueTeamInfo[r].mappingCode;
+
+    teamPreviews[teamInd[r][1]].byeRequests = oldRequest[r];
   }
 
   updateTeamInfo();
-  //now do the team assignments
-  /*for(let t=0;t<teamPreviews.length;t++){
-    teamPreviews[t].teamNumber = teamInd[t][1]+1;
-  }
-  //Resort the previews
-  teamPreviews = teamPreviews.sort((a,b)=>{return(a.teamNumber-b.teamNumber);});*/
 }
 
 /************
@@ -254,10 +268,12 @@ function buildScheduleTable() {
         brow.appendChild(utils.setCellText(schedule.week[i].timeSlot[j].match[k].time.toString()));
         brow.appendChild(utils.setCellText((startCourt + schedule.week[i].timeSlot[j].match[k].court).toString()));
         cell = utils.setCellText(schedule.week[i].timeSlot[j].match[k].team1.toString(), 'A');
-        cell.setAttribute('onclick', `launchTeamPreview(${schedule.week[i].timeSlot[j].match[k].team1})`);
+        utils.setAttributes(cell,{'onclick':`launchTeamPreview(${schedule.week[i].timeSlot[j].match[k].team1})`,
+            'class':"teamCell"});
         brow.appendChild(cell);
         cell = utils.setCellText(schedule.week[i].timeSlot[j].match[k].team2.toString(), 'A');
-        cell.setAttribute('onclick', `launchTeamPreview(${schedule.week[i].timeSlot[j].match[k].team2})`);
+        utils.setAttributes(cell,{'onclick':`launchTeamPreview(${schedule.week[i].timeSlot[j].match[k].team2})`,
+            'class':"teamCell"});
         brow.appendChild(cell);
       }
     }
@@ -406,11 +422,11 @@ function importTeamInfo() {
   teamData.forEach(function(e, i) {
     let row = table.children[i];
     //Team number
-    row.children[0].setAttribute('value', i + 1);
+    row.children[0].children[0].setAttribute('value', i + 1);
     //Team Name
-    row.children[1].setAttribute('value', e["Page Title"]);
+    row.children[1].children[0].setAttribute('value', e["Page Title"]);
     //Mapping Code
-    row.children[2].setAttribute('value', e["Mapping Code"]);
+    row.children[2].children[0].setAttribute('value', e["Mapping Code"]);
   });
   //Update the loaded team information
   updateTeamInfo(true);
@@ -432,9 +448,9 @@ function initByeRequestTable() {
   for (let i of teamInfo.children) {
     let row = document.createElement('tr');
     teamTable.appendChild(row);
-    let cell = utils.setCellText(i.children[0].value.toString());
+    let cell = utils.setCellText(i.children[0].children[0].value.toString());
     row.appendChild(cell);
-    cell = utils.setCellText(i.children[1].value.toString());
+    cell = utils.setCellText(i.children[1].children[0].value.toString());
     row.appendChild(cell);
   }
   //fill in the table
@@ -502,6 +518,7 @@ function initTeamInfo() {
   loadedTemplate.get('teamPreview').forEach((e, i) => {
     let row = document.createElement('tr');
     let teamInput = document.createElement("INPUT");
+    let cell = document.createElement('td');
     utils.setAttributes(teamInput, {
       'onchange': "updateTeamInfo()",
       'type': 'number',
@@ -509,13 +526,22 @@ function initTeamInfo() {
       'max': loadedTemplate.get('numTeams'),
       'value': i + 1
     });
-    row.appendChild(document.createElement('td').appendChild(teamInput));
+    cell.appendChild(teamInput);
+    row.appendChild(cell);
+
+    cell = document.createElement('td');
     teamInput = document.createElement("INPUT");
+    teamInput.setAttribute('type',"text");
+    cell.appendChild(teamInput);
     teamInput.setAttribute('onchange', "updateTeamInfo()");
-    row.appendChild(document.createElement('td').appendChild(teamInput));
+    row.appendChild(cell);
+
+    cell = document.createElement('td');
     teamInput = document.createElement("INPUT");
+    teamInput.setAttribute('type',"text");
+    cell.appendChild(teamInput);
     teamInput.setAttribute('onchange', "updateTeamInfo()");
-    row.appendChild(document.createElement('td').appendChild(teamInput));
+    row.appendChild(cell);
     body.appendChild(row);
   });
   //Replace the body with new info
@@ -555,7 +581,7 @@ function showTemplateChoices() {
   //Create a document fragment which makes this faster
   const c = document.createDocumentFragment();
   //Title
-  let title = document.createElement("H1");
+  let title = document.createElement("H2");
   title.innerHTML = 'Choose Template';
   c.appendChild(title);
   //Create a table to add to the document
@@ -565,9 +591,9 @@ function showTemplateChoices() {
   let head = document.createElement("thead");
   table.appendChild(head);
   let row = document.createElement("tr");
-  for (let h = 0; h < tableHeaders.length; h++) {
+  for (let h = 0; h < tableLabels.length; h++) {
     //append to rows
-    row.appendChild(utils.setCellText(tableHeaders[h]));
+    row.appendChild(utils.setCellText(tableLabels[h]));
   }
   head.appendChild(row);
 
@@ -595,9 +621,21 @@ function showTemplateChoices() {
         cell.appendChild(btn);
       } else {
         let text = dbTemplates[i].get(tableHeaders[h]);
-        let celltext = document.createTextNode(text != null ? text.toString() : 'none');
+        text = text != null ? text.toString() : 'none';
+        if (tableHeaders[h]==='numByes')
+        {
+          text = text.substring(0,4);
+        }
+        if(boolHeaders.some(e=>{return(e===tableHeaders[h]);}))
+        {
+          cell.innerHTML = text!='true' ? '&times' : '&#10004';
+          utils.setAttributes(cell,{'class':"boolCell","text":text});
+        } else
+        {
+        let celltext = document.createTextNode(text);
         //append to the cell
         cell.appendChild(celltext);
+        }
       }
       //append to rows
       row.appendChild(cell);
@@ -658,11 +696,11 @@ function updateTeamInfo(initBye) {
 
   //Loop through each child (which is the rows) and assign the team information
   for (let t of table.children) {
-    let teamNum = t.children[0].valueAsNumber;
+    let teamNum = t.children[0].children[0].valueAsNumber;
     //Assign team number
     leagueTeamInfo[teamNum - 1].teamNumber = teamNum;
-    leagueTeamInfo[teamNum - 1].name = t.children[1].value;
-    leagueTeamInfo[teamNum - 1].mappingCode = t.children[2].value;
+    leagueTeamInfo[teamNum - 1].name = t.children[1].children[0].value;
+    leagueTeamInfo[teamNum - 1].mappingCode = t.children[2].children[0].value;
 
     //Update the team Previews too
     loadedTemplate.get('teamPreview')[teamNum - 1].teamNumber = teamNum;
