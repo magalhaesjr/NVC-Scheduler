@@ -7,11 +7,12 @@
 .scheduleCalendar {
   font-family: Lato, sans-serif;
   font-weight: 300;
-  line-height: 1;
   background-color: #4075b7;
-  width: 100%;
+  display: inline-block;
   counter-reset: previous-month 29 current-month next-month;
   margin: 0;
+  vertical-align: top;
+  width: 49%;
 }
 
 header {
@@ -20,16 +21,15 @@ header {
 }
 
 .header-bar {
+  width: 300px;
   height: 1rem;
 }
 
 .header-title {
-  width: 100%;
-  height: 100%;
   padding: 1rem;
 }
 .header-title h1 {
-  width: 70%;
+  width: 60%;
   display: inline-block;
   font-weight: 300;
   font-size: 1rem;
@@ -38,6 +38,8 @@ header {
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 3px;
+  transform: translateX(8%);
+  text-shadow: 0px 0px;
 }
 
 .header-weekdays {
@@ -54,7 +56,7 @@ header {
 }
 
 .header-title span{
-  width: 14%;
+  width: 15%;
   height: 100%;
   display:inline-block;
   text-align: auto;
@@ -74,11 +76,13 @@ header {
 .header-title .previous {
   background-color: #f1f1f1;
   color: black;
+  transform: translateX(5%);
 }
 
 .header-title .next {
   background-color: #f1f1f1;
   color: black;
+  transform: translateX(30%);
 }
 
 .header-title .round {
@@ -104,7 +108,7 @@ header {
 }
 
 .month {
-  padding: 1rem;
+  padding: 12px;
   font-size: 1rem;
   color: white;
   margin: 0;
@@ -115,7 +119,7 @@ header {
   float: left;
   width: 14.28571%;
   text-align: center;
-  padding: 1rem 0;
+  padding: 12px 0;
   margin: 0;
   font-size: 1rem;
   line-height: 1;
@@ -165,13 +169,15 @@ header {
 .day[leagueDay=true]{
   background: blue;
   color: white;
+  cursor: pointer;
 }
 .day[blackout=true]{
   background: red;
   color: white;
+  cursor: pointer;
 }
 .day[leagueDay=true]:hover, .day ~ .day[leagueDay=true]:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.3);
   color: white;
 }
 .day, ~ .day, .day:checked ~ .day:hover ~ .day, .day:checked:hover ~ .day {

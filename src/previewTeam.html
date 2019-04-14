@@ -3,20 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy" content="default-src file: 'unsafe-inline';">
+  <link rel="stylesheet" type="text/css" href="./previewTeam.css">
   <title>Team Preview Window</title>
 </head>
 <body>
   <h1> Team Preview </h1>
   <!--<h2 id="teamNameTag">Team Name</h2>-->
-  <label for="teamNameTag">Selected Team</label>
-  <select id="teamNameTag" disable=true onchange="changePreviewTeam()">
-  </select>
-  <h2 id="teamNumber">Team Number</h2>
+  <div>
+    <select id="teamNameTag" disable=true onchange="changePreviewTeam()">
+    </select>
+    <h3 id="teamByeRequest"> Bye Requests: </h3>
+    <h2 id="teamNumber">Team Number</h2>
+  </div>
   <script type = "text/javascript" src="./previewTeam.js"></script>
   <!--Build the table for team previews without any of the details -->
-  <table id = "previewTable">
-    <tbody id="previewTableBody">
-    </tbody>
-  </table>
+  <div>
+    <table id = "previewTable">
+      <tbody id="previewTableBody">
+      </tbody>
+    </table>
+  </div>
 </body>
 </html>
