@@ -1,2 +1,7 @@
 release-builds/
-dist/
+dist/.cache
+dist/linux-unpacked/
+dist/win-unpacked/
+dist/*.yaml
+dist/*.yml
+dist/*.blockmap
