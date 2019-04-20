@@ -8,27 +8,50 @@
   "author": "Jeff Magalhaes",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.0",
     "munkres-js": "^1.2.2",
     "nedb": "^1.8.0",
-    "nodegit": "^0.24.1",
     "xlsx": "^0.14.1"
   },
   "devDependencies": {
     "electron": "^4.1.4",
-    "electron-packager": "^13.0.1",
-    "electron-winstaller": "^3.0.4"
+    "electron-builder": "^20.39.0",
+    "electron-winstaller": "^3.0.4",
+    "nodegit": "^0.24.1"
   },
   "scripts": {
-    "start": "electron .",
-    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/nvc.icns --prune=true --out=release-builds",
-    "package-win": "electron-packager . NVC-Scheduler --overwrite --platform=win32 --arch=x64 --icon=assets/icons/win/nvc.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"NVC-Scheduler\"",
-    "package-linux": "electron-packager . NVC-Scheduler --overwrite --asar=true --platform=linux --arch=x64 --icon=assets/icons/linx/nvc.png --prune=true --out=release-builds",
-    "create-installer-win": "node installers/windows/createinstaller.js"
+    "start": "set ISDEV=true&& electron .",
+    "dist-win": "electron-builder --win",
+    "dist-linux": "electron-builder --linux"
   },
   "build": {
     "extraResources": [
       "./extraResources/**"
-    ]
+    ],
+    "appId": "nvc.scheduler.app",
+    "npmRebuild": false,
+    "asar": true,
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icons/win/nvc.ico",
+      "certificateFile":"C:/users/Jeff/nvcscheduler.pfx",
+      "certificatePassword": "NVCScheduler",
+      "publisherName": "JeffMagalhaes"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "linux":{
+      "target":"deb",
+      "icon": "assets/icons/linux/nvc.png",
+      "maintainer": "Jeff Magalhaes",
+      "executableName": "nvc-scheduler"
+    },
+    "mac":{
+      "target":"dmg",
+      "category": "public.app-category.utilities",
+      "icon": "assets/icons/mac/nvc.icns",
+      "type": "development"
+    }
   }
 }
