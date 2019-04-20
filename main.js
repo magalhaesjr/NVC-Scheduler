@@ -1,4 +1,3 @@
-if (require('electron-squirrel-startup')) return;
 /*Import required modules*/
 const electron = require('electron');
 const path = require('path');
@@ -12,20 +11,15 @@ const {
   ipcMain,
   dialog
 } = electron;
-//handle setupevents as quickly as possible
- const setupEvents = require('./installers/setupEvents')
- if (setupEvents.handleSquirrelEvent()) {
-    // squirrel event handled and app will exit in 1000ms, so don't do anything else
-    app.quit();
- }
-
-
 
 //Define an environment variable to discern the platform (useful for MAC specific
 //crap)
 process.env.ISMAC_ENV = process.platform == 'darwin';
-process.env.NODE_ENV = 'release';
-//process.env.NODE_ENV = 'development';
+process.env.NODE_ENV = 'production';
+
+if (process.env.ISDEV=='true'){
+  process.env.NODE_ENV = 'development';
+}
 
 //All windows should be managed from this file
 //main window variable
@@ -186,7 +180,7 @@ const menuTemplate = [{
     ]
   }];
   // Add developer tools option if in dev
-if(process.env.NODE_ENV !== 'production'){
+//if(process.env.NODE_ENV !== "production"){
   menuTemplate.push({
     label: 'Developer Tools',
     submenu:[
@@ -202,7 +196,7 @@ if(process.env.NODE_ENV !== 'production'){
       }
     ]
   });
-}
+//}
 //Main menu for the template tool
 const templateToolMenu = [
   { label: 'Database',

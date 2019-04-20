@@ -22,11 +22,24 @@ const utils = require('./util.js');
 //Hungarian method for team assignment
 const munkres = require('munkres-js');
 
+//Check for bad initialization of env variables
+if (typeof process.env.NODE_ENV==='undefined'){
+  process.env.NODE_ENV = "production";
+}
+
 //Autoload the database
-let db = new Datastore({
-  filename: path.join(path.dirname(__dirname), 'extraResources','Templates.db'),
-  autoload: true
-});
+let db;
+if (process.env.NODE_ENV==="production"){
+  db = new Datastore({
+    filename: path.join(process.resourcesPath, 'extraResources','Templates.db'),
+    autoload: true
+  });
+} else{
+  db = new Datastore({
+    filename: path.join(path.dirname(__dirname), 'extraResources','Templates.db'),
+    autoload: true
+  });
+}
 
 /*****************************************************************************
  *****                                                                   *****
