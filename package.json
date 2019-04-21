@@ -21,7 +21,8 @@
   "scripts": {
     "start": "set ISDEV=true&& electron .",
     "dist-win": "electron-builder --win",
-    "dist-linux": "electron-builder --linux"
+    "dist-linux": "electron-builder --linux",
+    "dist-mac": "electron-builder --mac"
   },
   "build": {
     "extraResources": [
