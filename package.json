@@ -1,7 +1,7 @@
 {
   "name": "NVC-Scheduler",
   "productName": "NVC-Scheduler",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Creates NVC Schedules",
   "main": "main.js",
   "repository": "https://github.com/magalhaesjr/NVC-Scheduler",
