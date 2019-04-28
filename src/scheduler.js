@@ -1008,7 +1008,7 @@ function getByeTableString(week, date, msg, bye, time) {
   if (bye.length > 0) {
     byeString = leagueTeamInfo[bye[0] - 1].name;
     for (let b = 1; b < bye.length; b++) {
-      byeString.concat(',', leagueTeamInfo[bye[b] - 1].name);
+      byeString = byeString.concat(' ', leagueTeamInfo[bye[b] - 1].name);
     }
   }
 

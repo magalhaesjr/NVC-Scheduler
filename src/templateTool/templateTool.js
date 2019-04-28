@@ -34,7 +34,7 @@ if (process.env.NODE_ENV==="production"){
   });
 } else{
   db = new Datastore({
-    filename: path.join(path.dirname(__dirname), 'extraResources','Templates.db'),
+    filename: path.join(path.dirname( __dirname), '../extraResources','Templates.db'),
     autoload: true
   });
 }
