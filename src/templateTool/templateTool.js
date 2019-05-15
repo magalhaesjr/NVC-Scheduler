@@ -49,7 +49,12 @@ let dbTemplates = [];
 //simple script for getting a filename
 ipcRenderer.on('xlsx-file-input',(e,filename)=>{
   //Read in the excel sheet and convert to a JSON object
-  readExcelFile(filename[0]);
+  readExcelFile(filename[0],false);
+});
+//simple script for replacing the templates
+ipcRenderer.on('xlsx-file-replace',(e,filename)=>{
+  //Read in the excel sheet and convert to a JSON object
+  readExcelFile(filename[0],true);
 });
 //Load templatees
 ipcRenderer.on('load-Templates',e=>{
@@ -61,7 +66,7 @@ ipcRenderer.on('load-Templates',e=>{
  *****                             Functions                             *****
  *****                                                                   *****
  ****************************************************************************/
-function readExcelFile(file)
+function readExcelFile(file,replaceFlag)
 {
   //Read the workbook from the filename
   let wb = xlsx.readFile(file);
@@ -87,7 +92,11 @@ function readExcelFile(file)
       tempTemplate.buildTemplateSchedule(xlsx.utils.sheet_to_json(wb.Sheets['Schedule_' + templateInfo[i]['Schedule ID']]),
     templateInfo[i]['Schedule ID']);
       //Add the template to the Database
-      addTemplate(tempTemplate);
+      if(replaceFlag){
+        replaceTemplate(tempTemplate);
+      }else{
+        addTemplate(tempTemplate);
+      }
     }
   }
   else
@@ -108,6 +117,30 @@ function readExcelFile(file)
   //console.log(dbTemplates);
 }
 
+//Add the chosen template to the database
+function replaceTemplate(template)
+{
+  //Check to make sure that this template isn't already in the Database
+  db.find({_id:template.get('id')},function(err,docs)
+  {
+    if(docs.length===0)
+    {
+      //Couldnt' find the id in database, get the database format and write it
+      //to the database
+      db.insert(template.exportToDatabase(),function(err){
+        dbTemplates.push(template);
+        drawTemplateTable();
+      });
+    }
+    else{
+      //Replace the document in the database with the new one
+      db.update({_id:template.get('id')},template.exportToDatabase(),function(err){
+        dbTemplates.push(template);
+        drawTemplateTable();
+      });
+    }
+  });
+}
 //Add the chosen template to the database
 function addTemplate(template)
 {
