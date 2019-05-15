@@ -848,6 +848,8 @@ function outputSchedule() {
     "Event_Type,Team1_ID,Team1_Is_Home,Team2_ID,Location";
   //bye table info
   let byeData = "Week,Date,Message,Bye,Time";
+  //Starting court number
+  let startCourt = document.getElementById('start_court').valueAsNumber - 1;
 
   //Get the schedule
   const schedule = loadedTemplate.get('schedule');
@@ -867,7 +869,7 @@ function outputSchedule() {
         match = schedule.week[w].timeSlot[t].match[m];
         //add the match in sports engine format
         outputData = outputData.concat('\n', getScheduleString(week, match.time, leagueTeamInfo[match.team1 - 1].mappingCode,
-          leagueTeamInfo[match.team2 - 1].mappingCode, match.court));
+          leagueTeamInfo[match.team2 - 1].mappingCode, startCourt + match.court));
         //bye table information
         byeData = byeData.concat('\n', getByeTableString(w + 1, week, msg, bye, match.time));
       }
