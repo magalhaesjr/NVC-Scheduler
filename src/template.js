@@ -324,7 +324,7 @@ class Template {
     //Loop through all the Weeks and fill in all teams
     for (let w = 0; w < this._numWeeks; w++) {
       //Check if it's a blackout, if so then add it in
-      if(this._schedule.week[w].blackouts){
+      if(this._schedule.week[w].blackout){
         this._teamPreview.forEach(e=>{e.blackouts.push(this._schedule.week[w].date);});
       }
       //now look at each timeslot of the week
