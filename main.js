@@ -210,7 +210,16 @@ const templateToolMenu = [
         toolWin.webContents.send('xlsx-file-input',filename);
       },
     },
-    {label: 'Load Template'}]}];
+    {
+      label: 'Replace db templates with excel sheet',
+      click(){
+        //Open a file input window to grab the filename to upload
+        let filename = dialog.showOpenDialog({ properties: [ 'openFile'], filters: [{ name: 'XLSX', extensions: ['xlsx'] }]});
+
+        //send the filename to the tool window
+        toolWin.webContents.send('xlsx-file-replace',filename);
+      },
+    },{label: 'Load Template'}]}];
 if(process.env.NODE_ENV !== 'production'){
   templateToolMenu.push({
     label: 'Developer Tools',
