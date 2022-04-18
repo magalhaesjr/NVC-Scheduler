@@ -9,14 +9,12 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "munkres-js": "^1.2.2",
-    "nedb": "^1.8.0",
     "xlsx": "^0.14.1"
   },
   "devDependencies": {
     "electron": "^4.1.4",
     "electron-builder": "^20.39.0",
-    "electron-winstaller": "^3.0.4",
-    "nodegit": "^0.24.1"
+    "electron-winstaller": "^3.0.4"
   },
   "scripts": {
     "start": "set ISDEV=true&& electron .",
@@ -34,7 +32,7 @@
     "win": {
       "target": "nsis",
       "icon": "assets/icons/win/nvc.ico",
-      "certificateFile":"C:/users/Jeff/nvcscheduler.pfx",
+      "certificateFile": "C:/users/Jeff/nvcscheduler.pfx",
       "certificatePassword": "NVCScheduler",
       "publisherName": "JeffMagalhaes"
     },
@@ -42,14 +40,14 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
     },
-    "linux":{
-      "target":"deb",
+    "linux": {
+      "target": "deb",
       "icon": "assets/icons/linux/nvc.png",
       "maintainer": "Jeff Magalhaes",
       "executableName": "nvc-scheduler"
     },
-    "mac":{
-      "target":"dmg",
+    "mac": {
+      "target": "dmg",
       "category": "public.app-category.utilities",
       "icon": "assets/icons/mac/nvc.icns",
       "type": "development"
