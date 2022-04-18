@@ -4,9 +4,8 @@
 //need the remote library for electron function references in the main thread
 const {remote,ipcRenderer} = require('electron');
 const path = require('path');
+const fs = require('fs');
 const xlsx = require('xlsx');
-//Database
-const Datastore = require('nedb');
 //Template info
 const Template = require('../template').Template;
 
@@ -26,17 +25,11 @@ if (typeof process.env.NODE_ENV==='undefined'){
 }
 
 //Autoload the database
-let db;
+let templateFile;
 if (process.env.NODE_ENV==="production"){
-  db = new Datastore({
-    filename: path.join(process.resourcesPath, 'extraResources','Templates.db'),
-    autoload: true
-  });
+    templateFile = path.join(process.resourcesPath, 'extraResources','Templates.json');
 } else{
-  db = new Datastore({
-    filename: path.join(path.dirname( __dirname), '../extraResources','Templates.db'),
-    autoload: true
-  });
+    templateFile = path.join(path.dirname(__dirname), '../extraResources','Templates.json');
 }
 //All the templates extracted from the Database
 let dbTemplates = [];
@@ -117,65 +110,76 @@ function readExcelFile(file,replaceFlag)
   //console.log(dbTemplates);
 }
 
+// Write templates file
+function writeTemplates()
+{
+  // Convert all template objects to the JSON format
+  let storedTemplates = Array();
+  for (iTemp = 0; iTemp < dbTemplates.length; iTemp++){
+    storedTemplates.push(dbTemplates[iTemp].exportToDatabase()); 
+  }
+  // Just write the JSON objects to disk
+  fs.writeFileSync(templateFile, JSON.stringify(storedTemplates));
+}
+
 //Add the chosen template to the database
 function replaceTemplate(template)
 {
-  //Check to make sure that this template isn't already in the Database
-  db.find({_id:template.get('id')},function(err,docs)
-  {
-    if(docs.length===0)
-    {
-      //Couldnt' find the id in database, get the database format and write it
-      //to the database
-      db.insert(template.exportToDatabase(),function(err){
-        dbTemplates.push(template);
-        drawTemplateTable();
-      });
-    }
-    else{
-      //Replace the document in the database with the new one
-      db.update({_id:template.get('id')},template.exportToDatabase(),function(err){
-        dbTemplates.push(template);
-        drawTemplateTable();
-      });
-    }
-  });
+  // Look in existing templates for the existing ID
+  let target = dbTemplates.findIndex(t=>(t.get('id')=== template.get('id')), template);
+  // If empty, add this new template
+  if (target === undefined){
+    console.log('Could not find template to replace');
+  }else{
+    dbTemplates[target] = template;
+    writeTemplates();
+    drawTemplateTable();
+  }
 }
+
 //Add the chosen template to the database
 function addTemplate(template)
 {
-  //Check to make sure that this template isn't already in the Database
-  db.find({_id:template.get('id')},function(err,docs)
-  {
-    if(docs.length===0)
-    {
-      //Couldnt' find the id in database, get the database format and write it
-      //to the database
-      db.insert(template.exportToDatabase(),function(err){
-        dbTemplates.push(template);
-        drawTemplateTable();
-      });
-    }
-  });
+  // Look in existing templates for the existing ID
+  let target = dbTemplates.find(t=>(t.get('id')=== template.get('id')), template);
+  // If empty, add this new template
+  if (target === undefined){
+    dbTemplates.push(template);
+    writeTemplates();
+    drawTemplateTable();
+  }else{
+    console.log('Template is already in database');
+  }
 }
 
 //Load templates from the Database
-function loadTemplatesFromDatabase(){
-  //Find all of the templates currently in the database and sort by id
-  db.find({}).sort({season:1,numTeams:1}).exec(function(err,docs){
-    //Loop on each doc, creating a template, building the team preview, and then
-    //keeping the copy around
-    for(let i=0;i<docs.length;i++){
-      dbTemplates.push(new Template());
-      dbTemplates[i].importFromDatabase(docs[i]);
+function loadTemplatesFromDatabase()
+{
+  // Read the templates from the json file into a raw buffer
+  let rawBuffer = fs.readFileSync(templateFile);
+
+  // Parse into JSON objects
+  let storedTemplates = JSON.parse(rawBuffer);
+  // Sort templates by season and then numTeams
+  storedTemplates.sort((a, b) =>{
+    let diff = a.season.localeCompare(b.season);
+    if(diff === 0){
+      diff = a.numTeams - b.numTeams;
     }
-    //After the for loop we draw the template table
-    drawTemplateTable();
+    return diff
   });
+  
+  // Sort through the stored templates and create objects for the selected season
+  for(let t = 0; t < storedTemplates.length; t++){
+    dbTemplates.push(new Template());
+    dbTemplates[t].importFromDatabase(storedTemplates[t]);
+  }
+  drawTemplateTable();
 }
 
 //re draws the template tool page with all loaded templates from the Database
-function drawTemplateTable(){
+function drawTemplateTable()
+{
   //Dynamically fill in the html table from the templates in the database
   let table = document.getElementById('templateTable');
   //Remove what is currently there in the body
@@ -229,7 +233,8 @@ function drawTemplateTable(){
   //Now add the new body to the table
   table.appendChild(c);
 }
-function updateRecord(event){
+function updateRecord(event)
+{
 
   let t = event.target;
   let newval;
@@ -241,19 +246,8 @@ function updateRecord(event){
   }
   let i = Number(t.getAttribute('Template'));
   let field = t.getAttribute('Field');
-  switch(field){
-    case('hasPools'):
-    db.update({_id: dbTemplates[i].get('id')},
-      { $set: { hasPools : newval}},{},function(){});
-    break;
-    case('description'):
-    db.update({_id: dbTemplates[i].get('id')},
-      { $set: { description : newval}},{},function(){});
-    break;
-    case('title'):
-    db.update({_id: dbTemplates[i].get('id')},
-      { $set: { title : newval}},{},function(){});
-    break;
-  }
-  //console.log(id);
+  
+  // Set the property and write it out
+  dbTemplates[i].set(field, newval);
+  writeTemplates();
 }
