@@ -11,8 +11,6 @@ const path = require('path');
 const dialog = remote.dialog;
 //File writing from remote class
 const fs = remote.require('fs');
-//Database
-const Datastore = require('nedb');
 //Template info
 const Template = require('./template').Template;
 const TeamInfo = require('./template').TeamInfo;
@@ -28,19 +26,12 @@ if (typeof process.env.NODE_ENV==='undefined'){
 }
 
 //Autoload the database
-let db;
+let templateFile;
 if (process.env.NODE_ENV==="production"){
-  db = new Datastore({
-    filename: path.join(process.resourcesPath, 'extraResources','Templates.db'),
-    autoload: true
-  });
+    templateFile = path.join(process.resourcesPath, 'extraResources','Templates.json');
 } else{
-  db = new Datastore({
-    filename: path.join(path.dirname(__dirname), 'extraResources','Templates.db'),
-    autoload: true
-  });
+    templateFile = path.join(path.dirname(__dirname), 'extraResources','Templates.json');
 }
-
 /*****************************************************************************
  *****                                                                   *****
  *****                       Global Variables                            *****
@@ -567,22 +558,27 @@ function initTeamInfo() {
 
 //Load templates from the Database
 function loadTemplateChoices(season) {
-  //Find all of the templates currently in the database and sort by id
-  db.find({
-    season: season
-  }).sort({
-    season: 1,
-    numTeams: 1
-  }).exec(function(err, docs) {
-    //Loop on each doc, creating a template, building the team preview, and then
-    //keeping the copy around
-    for (let i = 0; i < docs.length; i++) {
-      dbTemplates.push(new Template());
-      dbTemplates[i].importFromDatabase(docs[i]);
-    }
-    //After the for loop we draw the template table
-    showTemplateChoices();
+  // Reset templates
+  dbTemplates = [];
+  // Read the templates from the json file into a raw buffer
+  let rawBuffer = fs.readFileSync(templateFile);
+
+  // Parse into JSON objects
+  let storedTemplates = JSON.parse(rawBuffer);
+  // Sort templates by numTeams
+  storedTemplates.sort((a, b) =>{
+    return a.numTeams - b.numTeams;
   });
+  
+  // Sort through the stored templates and create objects for the selected season
+  let iOut = 0;
+  for(let t = 0; t < storedTemplates.length; t++){
+    if (storedTemplates[t].season === season){
+      dbTemplates.push(new Template());
+      dbTemplates[iOut++].importFromDatabase(storedTemplates[t]);
+    }
+  }
+  showTemplateChoices();
 }
 
 /************
