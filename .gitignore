@@ -5,3 +5,4 @@ dist/win-unpacked/
 dist/*.yaml
 dist/*.yml
 dist/*.blockmap
+node_modules/
