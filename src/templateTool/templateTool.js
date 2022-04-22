@@ -2,12 +2,14 @@
 //templates from the database
 
 //need the remote library for electron function references in the main thread
-const {remote,ipcRenderer} = require('electron');
+/*const {remote,ipcRenderer} = require('electron');
 const path = require('path');
 const fs = require('fs');
 const xlsx = require('xlsx');
 //Template info
 const Template = require('../template').Template;
+*/
+import Template from '../template.js';
 
 //variables to put in the table
 const tableHeaders = ['title','season','numTeams','numCourts','numWeeks','numByes',
@@ -18,7 +20,7 @@ const numericHeaders = ['numTeams','numCourts','numWeeks','numByes','minMatches'
 const boolHeaders = ['balanced','equalMatches','hasPools'];
 //columns that can be edited
 const inputHeaders = ['title','hasPools','description'];
-
+/*
 //Check for bad initialization of env variables
 if (typeof process.env.NODE_ENV==='undefined'){
   process.env.NODE_ENV = "production";
@@ -31,6 +33,7 @@ if (process.env.NODE_ENV==="production"){
 } else{
     templateFile = path.join(path.dirname(__dirname), '../extraResources','Templates.json');
 }
+*/
 //All the templates extracted from the Database
 let dbTemplates = [];
 
@@ -39,8 +42,18 @@ let dbTemplates = [];
  *****                        Main Thread Comms                          *****
  *****                                                                   *****
  ****************************************************************************/
+// Once a season is chosen, you start the process
+window.api.onStart((e, season) => {
+  //set the html pages displays correctly
+  document.getElementsByClassName('stages')[0].setAttribute('hide', false);
+  document.getElementById("one").setAttribute('checked', "checked");
+  
+  //load all the templates from the database
+  loadTemplateChoices(season);
+});
+
 //simple script for getting a filename
-ipcRenderer.on('xlsx-file-input',(e,filename)=>{
+window.toolApi.on('xlsx-file-input',(e,filename)=>{
   //Read in the excel sheet and convert to a JSON object
   readExcelFile(filename[0],false);
 });

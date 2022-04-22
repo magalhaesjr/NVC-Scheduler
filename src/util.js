@@ -1,5 +1,5 @@
 
-exports.setCellText=function (textIn,style,attributes){
+export function setCellText (textIn,style,attributes){
   let cell = document.createElement('td');
   let block;
   if(typeof style ==='undefined'){
@@ -19,7 +19,7 @@ exports.setCellText=function (textIn,style,attributes){
   return(cell);
 };
 //set multiple html attributes all at onchange
-exports.setAttributes = function(el,attributes)
+export function setAttributes(el,attributes)
 {
   for(let key in attributes){
     el.setAttribute(key,attributes[key]);

@@ -2,6 +2,9 @@
 const electron = require('electron');
 const path = require('path');
 const url = require('url');
+const fs = require('fs');
+const munkres = require('munkres-js');
+const xlsx = require('xlsx');
 
 //Pull out needed packages from electron
 const {
@@ -29,27 +32,31 @@ let toolWin=null;
 //team preview window
 let previewWin = null;
 
+// Template file
+let templateFile;
+if (process.env.NODE_ENV==="production"){
+    templateFile = path.join(process.resourcesPath, 'extraResources','Templates.json');
+} else{
+    templateFile = path.join(__dirname, 'extraResources','Templates.json');
+}
+
 //Menus
 let mainMenu;
 let toolMenu;
 
 //When the app is ready open up the main window
-app.on('ready', () => {
+app.whenReady().then(() => {
   //Initialize the main windoow (800x600 by default)
   mainWindow = new BrowserWindow({
     height: 600,
     width: 800,
     title: 'NVC Scheduler' ,
     webPreferences:{
-    nodeIntegration: true}
+      preload: path.join(__dirname, "src/preload.js")}
   });
 
   //Now open up the file which displays the main program
-  mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, "src/mainWindow.html"),
-    protocol: 'file:',
-    slashes: true
-  }));
+  mainWindow.loadFile(path.join(__dirname, "src/mainWindow.html"));
 
   //MENUS
   toolMenu = Menu.buildFromTemplate(templateToolMenu);
@@ -67,18 +74,18 @@ app.on('ready', () => {
 
 /*****************************************************************************
  *****                                                                   *****
- *****                        Renderer Thread Comms                      *****
+ *****                       Scheudler Thread Comms                      *****
  *****                                                                   *****
  ****************************************************************************/
-ipcMain.on('launch-team-preview',(e,teamPreview,teamNum)=>{
+ipcMain.handle('scheduler:launchTeamPreview',(teamPreview,teamNum)=>{
   if (previewWin==null)
   {
     previewWin = new BrowserWindow({
       title: 'Team Preview',
       menuBarVisibility: "toggle",
       autoHideMenuBar: true,
-      webPreferences:{
-      nodeIntegration: true}
+      //webPreferences:{
+      //nodeIntegration: true}
     });
 
     previewWin.loadURL(url.format({
@@ -88,14 +95,97 @@ ipcMain.on('launch-team-preview',(e,teamPreview,teamNum)=>{
     }));
     //Send rquired info
     previewWin.webContents.on('did-finish-load',()=>{
-      previewWin.webContents.send('init-team-preview',teamPreview,teamNum);});
+      previewWin.webContents.send('init-team-preview', teamPreview, teamNum);});
     //Cleanup stuff
     previewWin.on('close', ()=> previewWin=null);
   }else{
     //just send an update
-    previewWin.webContents.send('update-team-preview',teamNum);
+    previewWin.webContents.send('update-team-preview', teamNum);
   }
 });
+
+// Expose team assignment via the hungarian algorithm from node
+ipcMain.handle('scheduler:assignTeams', (costMatrix) =>{
+  return munkres(costMatrix);
+});
+
+// Load team info from excel csv
+ipcMain.handle('scheduler:importTeamInfo', ()=>{
+  let filename = dialog.showOpenDialog({
+    properties: ['openFile'],
+    filters: [{
+      name: 'CSV',
+      extensions: ['csv']
+    }]
+  });
+
+  //Import the work workbook
+  let wb = xlsx.readFile(filename[0], {
+    raw: true
+  });
+
+  //Read the csv file, hopefully...
+  return xlsx.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {
+    range: "A3:C100"
+  });
+}); 
+
+// Load templates from stored file
+ipcMain.handle('scheduler:importTemplates', ()=>{
+  // Read the templates from the json file into a raw buffer
+  let rawBuffer = fs.readFileSync(templateFile);
+
+  // Parse into JSON objects
+  let storedTemplates = JSON.parse(rawBuffer);
+  // Sort templates by numTeams
+  storedTemplates.sort((a, b) =>{
+    return a.numTeams - b.numTeams;
+  });
+  return storedTemplates;
+});
+
+ipcMain.handle('scheduler:saveSchedule', (outputData, byeData)=>{
+  //Open a file dialog to determine the output file
+  let filename = dialog.showSaveDialog({
+    filters: [{
+      name: 'CSV',
+      extensions: ['csv']
+    }]
+  });
+
+  if (typeof filename === 'undefined') {
+    return;
+  }
+  //Write all of the data at once
+  fs.writeFile(filename, outputData, function(err) {
+    if (err) {
+      console.log('Some error occured - file either not saved or corrupted file saved.');
+      console.log(filename);
+      return;
+    } else {
+      console.log('It\'s saved!');
+    }
+  });
+
+  filename = filename.replace('.csv', '_ByeTable.csv');
+  //Write all of the data at once
+  fs.writeFile(filename, byeData, function(err) {
+    if (err) {
+      console.log('Some error occured - file either not saved or corrupted file saved.');
+      console.log(filename);
+      return;
+    } else {
+      console.log('It\'s saved!');
+    }
+  });
+});
+/*****************************************************************************
+ *****                                                                   *****
+ *****                   Template Tool Thread Comms                      *****
+ *****                                                                   *****
+ ****************************************************************************/
+//ipcMain.handle('templateTool:readExcelFile,(filename)=>{
+//}
 /*******************************************************************************
  *****                                                                      *****
  *****                               MENUS                                  *****
@@ -109,9 +199,9 @@ const menuTemplate = [{
           { label: 'Template Schedule',
           submenu: [
             {label:'For Beach',
-              click() {mainWindow.send('start-template-schedule','beach');}},
+              click() {mainWindow.webContents.send('start-template-schedule', 'beach');}},
               {label: 'For Indoor',
-              click() {mainWindow.send('start-template-schedule','indoor');}}
+              click() {mainWindow.send('start-template-schedule', 'indoor');}}
           ]},
           {label: 'Auto-Schedule',
             click() {
@@ -146,7 +236,7 @@ const menuTemplate = [{
             toolWin = new BrowserWindow({
               title: 'Template Tool',
               webPreferences:{
-              nodeIntegration: true}
+                preload: path.join(__dirname, "src/templateTool/preload.js")}
             });
 
             toolWin.loadURL(url.format({

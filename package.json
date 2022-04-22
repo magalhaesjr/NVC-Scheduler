@@ -9,10 +9,10 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "munkres-js": "^1.2.2",
-    "xlsx": "^0.14.1"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "electron": "^4.1.4",
+    "electron": "^18.0.4",
     "electron-builder": "^20.39.0",
     "electron-winstaller": "^3.0.4"
   },
