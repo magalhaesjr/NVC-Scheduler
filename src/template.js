@@ -1,5 +1,3 @@
-//Includes
-const remote = require('electron');
 //this file includes classes related to the schedule templates
 
 /*****************************************************************************
@@ -547,5 +545,6 @@ function copyObjectValues(objOut,objIn){
 }
 
 //Export
-module.exports.Template = Template;
-module.exports.TeamInfo = TeamInfo;
+//module.exports.Template = Template;
+//module.exports.TeamInfo = TeamInfo;
+export {Template, TeamInfo};
