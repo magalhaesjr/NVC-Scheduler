@@ -9,6 +9,7 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "munkres-js": "^1.2.2",
+    "readable-stream": "^2.3.7",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
