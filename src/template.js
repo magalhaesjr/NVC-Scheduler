@@ -430,8 +430,14 @@ class Template {
     //Check the condition
     if(index==-1){alert('This date is not a league date');return;}
 
+    // Find the next free week
+    let nextWeek = index + 1;
+    while(this._schedule.week[nextWeek].blackout){
+      nextWeek++;
+    }
+
     //Create a new week for the blackout
-    let blackOut = new Week(index+1, inputDate,'Blackout');
+    let blackOut = new Week(nextWeek, inputDate,'Blackout');
     blackOut.blackout = true;
 
     //Now insert the blackout week into the schedule
@@ -447,7 +453,7 @@ class Template {
     //Push blackout
     oldDates.push('20/20/2000');
 
-    this.updateSchedule(index+1,oldDates);
+    this.updateSchedule(nextWeek,oldDates);
 
     //Add this blackout to the team previews
     this._teamPreview.forEach(e=>{e.blackouts.push(inputDate);});

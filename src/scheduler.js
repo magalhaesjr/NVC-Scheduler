@@ -1,40 +1,6 @@
 //This file is the main scheduling function. It will handle all of the scheduling
 //specific functions
 
-//need the remote library for electron function references in the main thread
-/*const {
-  remote,
-  ipcRenderer
-} = require('electron');
-const path = require('path');
-//dialog window is from the remote class
-const dialog = remote.dialog;
-//File writing from remote class
-const fs = remote.require('fs');
-//csv reading
-const xlsx = require('xlsx');
-//Hungarian method for team assignment
-const munkres = require('munkres-js');
-
-//Check for bad initialization of env variables
-if (typeof process.env.NODE_ENV==='undefined'){
-  process.env.NODE_ENV = "production";
-}
-
-//Autoload the database
-let templateFile;
-if (process.env.NODE_ENV==="production"){
-    templateFile = path.join(process.resourcesPath, 'extraResources','Templates.json');
-} else{
-    templateFile = path.join(path.dirname(__dirname), 'extraResources','Templates.json');
-}
-*/
-
-//Template info
-//const Template = require('./template').Template;
-//const TeamInfo = require('./template').TeamInfo;
-//const utils = require('./util.js');
-
 // Import classes and functions from other files
 import {Template, TeamInfo} from './template.js';
 import * as utils from './util.js';
@@ -71,17 +37,6 @@ const Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
  *****                        Main Thread Comms                          *****
  *****                                                                   *****
  ****************************************************************************/
-//Load templates
-/*ipcRenderer.on('start-template-schedule', (e, season) => {
-  //set the html pages displays correctly
-  document.getElementsByClassName('stages')[0].setAttribute('hide', false);
-  document.getElementById("one").setAttribute('checked', "checked");
-
-  //load all the templates from the database
-  loadTemplateChoices(season);
-});
-*/
-
 // Once a season is chosen, you start the process
 window.api.onStart((e, season) => {
   //set the html pages displays correctly
@@ -139,7 +94,7 @@ export function assignTeamNumbers() {
     //Now find all of the bye requests
     byes = req.getElementsByClassName('byeRequestCell');
     for (let c=0;c<byes.length;c++){
-      b = byes[c];
+      let b = byes[c];
       //if bye type is >0 then add it to the team's bye request
       if(Number(b.getAttribute('byeType'))===1){
         preview.byeRequests.push(b.getAttribute('date'));
@@ -291,12 +246,12 @@ export function buildScheduleTable() {
         brow.appendChild(utils.setCellText(schedule.week[i].timeSlot[j].match[k].time.toString()));
         brow.appendChild(utils.setCellText((startCourt + schedule.week[i].timeSlot[j].match[k].court).toString()));
         cell = utils.setCellText(schedule.week[i].timeSlot[j].match[k].team1.toString(), 'A');
-        utils.setAttributes(cell,{'onclick':`launchTeamPreview(${schedule.week[i].timeSlot[j].match[k].team1})`,
-            'class':"teamCell"});
+        utils.setAttributes(cell,{'class':"teamCell"});
+        cell.addEventListener('click', ()=>launchTeamPreview(schedule.week[i].timeSlot[j].match[k].team1));
         brow.appendChild(cell);
         cell = utils.setCellText(schedule.week[i].timeSlot[j].match[k].team2.toString(), 'A');
-        utils.setAttributes(cell,{'onclick':`launchTeamPreview(${schedule.week[i].timeSlot[j].match[k].team2})`,
-            'class':"teamCell"});
+        utils.setAttributes(cell,{'class':"teamCell"});
+        cell.addEventListener('click', ()=>launchTeamPreview(schedule.week[i].timeSlot[j].match[k].team2));
         brow.appendChild(cell);
       }
     }
@@ -400,6 +355,9 @@ export function drawCalendar(template, startDate) {
       finalCalendar.replaceChild(document.importNode(template.children[c], true),
         finalCalendar.children[c]);
     }
+    // Reset callbacks
+    schedCalendar.querySelector(".previous").addEventListener('click', ()=>{updateMonth(-1)});
+    schedCalendar.querySelector(".next").addEventListener('click', ()=>{updateMonth(1)});
   } else {
     schedCalendar.appendChild(document.importNode(template, true));
     finalCalendar.appendChild(document.importNode(template, true));
@@ -407,6 +365,16 @@ export function drawCalendar(template, startDate) {
 
   //Now update the calendar with the actual play dates
   updateCalendarPreview();
+  
+  // Set the callback for all play days
+  // Remove previous callbacks
+  allDays = document.querySelectorAll(".day");
+  for (let d = 0; d < allDays.length; d++){
+    allDays[d].removeEventListener('click', (event)=>toggleBlackout(event));
+    if (allDays[d].getAttribute('leagueday')){
+      allDays[d].addEventListener('click', (event)=>toggleBlackout(event));
+    }
+  }
 }
 
 /************
@@ -443,6 +411,9 @@ export function importTeamInfo() {
 
 //Creates the bye request table on panel 4
 export function initByeRequestTable() {
+  // Define variables with scope for below
+  let row;
+  let cell;
   //Grab the Team info from step 3
   let teamInfo = document.getElementById('teamInfoBody');
   //Grab the schedule information
@@ -455,9 +426,9 @@ export function initByeRequestTable() {
   c.appendChild(teamTable);
   //List all the teams as a row
   for (let i of teamInfo.children) {
-    let row = document.createElement('tr');
+    row = document.createElement('tr');
     teamTable.appendChild(row);
-    let cell = utils.setCellText(i.children[0].children[0].value.toString());
+    cell = utils.setCellText(i.children[0].children[0].value.toString());
     row.appendChild(cell);
     cell = utils.setCellText(i.children[1].children[0].value.toString());
     row.appendChild(cell);
@@ -494,27 +465,22 @@ export function initByeRequestTable() {
   addBtn.id = 'newByeBtn';
   utils.setAttributes(addBtn, {
     'type': "button",
-    'onclick': "addByeRow()"
   });
+  addBtn.addEventListener('click', ()=>addByeRow());
   row.appendChild(addBtn);
   byeTable.replaceChild(body, document.getElementById('byeRequestBody'));
 }
 //Initialize the calendar object
 export function initCalendarObject() {
   //Import the template from the html file
-  let templates = document.getElementById("calendarTemplate").import;
-  //Grab the actual calendar object
-  let cal = templates.getElementById("calendarObject");
-
-  //get the start date, and setup the calendar
-  let startDate = document.getElementById('start_date').valueAsDate;
-
-  //Get a pointer to the document fragment, so that we can manipulate the data
-  let doc = cal.content;
-
-  //Draw the initial month in the calendar objects
-  drawCalendar(doc, startDate);
+  fetch("./calendarTemplate.html").then(response=>response.text()).then((template)=>{
+    let parser = new DOMParser();
+    let doc = parser.parseFromString(template, 'text/html');
+    //Draw the initial month in the calendar objects
+    drawCalendar(doc.getElementById("calendarObject").content, document.getElementById('start_date').valueAsDate);
+  });
 }
+
 //initializes the team information form based on chosen template
 export function initTeamInfo() {
   let c = document.createDocumentFragment();
@@ -529,12 +495,12 @@ export function initTeamInfo() {
     let teamInput = document.createElement("INPUT");
     let cell = document.createElement('td');
     utils.setAttributes(teamInput, {
-      'onchange': "updateTeamInfo()",
       'type': 'number',
       'min': 1,
       'max': loadedTemplate.get('numTeams'),
       'value': i + 1
     });
+    teamInput.addEventListener('change',()=>updateTeamInfo());
     cell.appendChild(teamInput);
     row.appendChild(cell);
 
@@ -542,14 +508,16 @@ export function initTeamInfo() {
     teamInput = document.createElement("INPUT");
     teamInput.setAttribute('type',"text");
     cell.appendChild(teamInput);
-    teamInput.setAttribute('onchange', "updateTeamInfo()");
+    //teamInput.setAttribute('onchange', "updateTeamInfo()");
+    teamInput.addEventListener('change', ()=>updateTeamInfo());
     row.appendChild(cell);
 
     cell = document.createElement('td');
     teamInput = document.createElement("INPUT");
     teamInput.setAttribute('type',"text");
     cell.appendChild(teamInput);
-    teamInput.setAttribute('onchange', "updateTeamInfo()");
+    //teamInput.setAttribute('onchange', "updateTeamInfo()");
+    teamInput.addEventListener('change', ()=>updateTeamInfo());
     row.appendChild(cell);
     body.appendChild(row);
   });
@@ -619,12 +587,9 @@ export function showTemplateChoices() {
         utils.setAttributes(btn, {
           'type': "radio",
           'name': 'selectedTeamplate',
-          'onclick': `selectTemplate(${i})`
+          //'onclick': ``
         });
-        //btn.setAttribute('type','radio');
-        //btn.setAttribute('name','selectedTemplate');
-        //Set data for use and callback function
-        //btn.setAttribute('onclick',`selectTemplate(${i})`);
+        btn.addEventListener('click',()=>{selectTemplate(i)});
         cell.appendChild(btn);
       } else {
         let text = dbTemplates[i].get(tableHeaders[h]);
@@ -681,8 +646,7 @@ export function updateCalendarPreview() {
     if (weeks >= 0 && allDays[d].getAttribute('monthClass') === 'current') {
       //This is a play week
       utils.setAttributes(allDays[d], {
-        'leagueDay': false,
-        'onclick': "toggleBlackout(event)"
+        'leagueDay': false
       });
       allDays[d].setAttribute('leagueDay', true);
       //check for a blackout
@@ -691,7 +655,6 @@ export function updateCalendarPreview() {
       utils.setAttributes(allDays[d], {
         'leagueDay': false,
         "blackout": false,
-        'onclick': ""
       });
     }
   }
@@ -701,9 +664,12 @@ export function updateTeamInfo(initBye) {
   //find the team info table in the app, and update the internal memory
   let table = document.getElementById('teamInfoBody');
 
+  // Declare variables with function scope
+  let teamNum;
+
   //Loop through each child (which is the rows) and assign the team information
   for (let t of table.children) {
-    let teamNum = t.children[0].children[0].valueAsNumber;
+    teamNum = t.children[0].children[0].valueAsNumber;
     //Assign team number
     leagueTeamInfo[teamNum - 1].teamNumber = teamNum;
     leagueTeamInfo[teamNum - 1].name = t.children[1].children[0].value;
@@ -787,18 +753,14 @@ export function addByeRow() {
       input.className = 'byeRequestCell';
       utils.setAttributes(input, {
         'type': "button",
-        'onclick': "toggleByeType(event)",
         'byeType': 0,
         'date': e.date
       });
+      input.addEventListener('click', (event)=>toggleByeType(event));
       input.id = "team" + (body.children.length).toString() + "week" +
         e.weekNum.toString();
       cell.appendChild(input);
 
-      //add a label that will format this nicely
-      //let cellLabel = document.createElement("label");
-      //cellLabel.for = input.id;
-      //cell.appendChild(cellLabel);
       row.appendChild(cell);
     }
   });
