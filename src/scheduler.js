@@ -506,9 +506,11 @@ export function initTeamInfo() {
 
     cell = document.createElement('td');
     teamInput = document.createElement("INPUT");
-    teamInput.setAttribute('type',"text");
+    utils.setAttributes(teamInput, {
+      'type' : "text",
+      'value' : `team ${i + 1}`
+    });
     cell.appendChild(teamInput);
-    //teamInput.setAttribute('onchange', "updateTeamInfo()");
     teamInput.addEventListener('change', ()=>updateTeamInfo());
     row.appendChild(cell);
 
@@ -516,7 +518,6 @@ export function initTeamInfo() {
     teamInput = document.createElement("INPUT");
     teamInput.setAttribute('type',"text");
     cell.appendChild(teamInput);
-    //teamInput.setAttribute('onchange', "updateTeamInfo()");
     teamInput.addEventListener('change', ()=>updateTeamInfo());
     row.appendChild(cell);
     body.appendChild(row);
@@ -772,9 +773,13 @@ export function addByeRow() {
 }
 
 export function launchTeamPreview(teamNum) {
+  // Create an object to send over comms
+  const msg = {
+    teamPreview : loadedTemplate.get('teamPreview'),
+    teamNum : teamNum
+  };
   //Tell the main thread to launch a preview window
-  window.api.launchTeamPreview('scheduler:launchTeamPreview', loadedTemplate.get('teamPreview'), teamNum);
-  //ipcRenderer.send('launch-team-preview', loadedTemplate.get('teamPreview'), teamNum);
+  window.api.launchTeamPreview('scheduler:launchTeamPreview', msg);
 }
 
 export function nextStep() {

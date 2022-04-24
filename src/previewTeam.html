@@ -8,14 +8,16 @@
 </head>
 <body>
   <h1> Team Preview </h1>
-  <!--<h2 id="teamNameTag">Team Name</h2>-->
   <div>
-    <select id="teamNameTag" disable=true onchange="changePreviewTeam()">
+    <select id="teamNameTag" disable=true>
     </select>
     <h3 id="teamByeRequest"> Bye Requests: </h3>
     <h2 id="teamNumber">Team Number</h2>
+    <script>
+      document.getElementById("teamNameTag").addEventListener('change', ()=>import('./previewTeam.js').then((Module)=>{Module.changePreviewTeam()}));
+    </script>
   </div>
-  <script type = "text/javascript" src="./previewTeam.js"></script>
+  <script type = "module" src="./previewTeam.js"></script>
   <!--Build the table for team previews without any of the details -->
   <div>
     <table id = "previewTable">

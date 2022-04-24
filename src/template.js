@@ -551,6 +551,4 @@ function copyObjectValues(objOut,objIn){
 }
 
 //Export
-//module.exports.Template = Template;
-//module.exports.TeamInfo = TeamInfo;
 export {Template, TeamInfo};
