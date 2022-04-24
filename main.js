@@ -74,18 +74,24 @@ app.whenReady().then(() => {
 
 /*****************************************************************************
  *****                                                                   *****
- *****                       Scheudler Thread Comms                      *****
+ *****                       Scheduler Thread Comms                      *****
  *****                                                                   *****
- ****************************************************************************/
-ipcMain.handle('scheduler:launchTeamPreview',(teamPreview,teamNum)=>{
-  if (previewWin==null)
+ ***************************************************************************/
+//ipcMain.handle('scheduler:launchTeamPreview',(e, channel, teamPreview, teamNum)=>{
+ipcMain.handle('scheduler:launchTeamPreview',(e, channel, msg)=>{
+  // Pull out data from message
+  let teamPreview = msg.teamPreview;
+  let teamNum = msg.teamNum;
+
+  if (previewWin===null)
   {
     previewWin = new BrowserWindow({
       title: 'Team Preview',
       menuBarVisibility: "toggle",
       autoHideMenuBar: true,
-      //webPreferences:{
-      //nodeIntegration: true}
+      webPreferences:{
+        preload: path.join(__dirname, "src/preloadPreview.js")
+      }
     });
 
     previewWin.loadURL(url.format({
@@ -95,17 +101,18 @@ ipcMain.handle('scheduler:launchTeamPreview',(teamPreview,teamNum)=>{
     }));
     //Send rquired info
     previewWin.webContents.on('did-finish-load',()=>{
-      previewWin.webContents.send('init-team-preview', teamPreview, teamNum);});
+      previewWin.webContents.send('preview:initPreview', teamPreview, teamNum);});
     //Cleanup stuff
     previewWin.on('close', ()=> previewWin=null);
   }else{
+    console.log(teamNum);
     //just send an update
-    previewWin.webContents.send('update-team-preview', teamNum);
+    previewWin.webContents.send('preview:updatePreview', teamNum);
   }
 });
 
 // Expose team assignment via the hungarian algorithm from node
-ipcMain.handle('scheduler:assignTeams', (costMatrix) =>{
+ipcMain.handle('scheduler:assignTeams', (e, costMatrix) =>{
   return munkres(costMatrix);
 });
 
@@ -144,7 +151,7 @@ ipcMain.handle('scheduler:importTemplates', ()=>{
   return storedTemplates;
 });
 
-ipcMain.handle('scheduler:saveSchedule', (outputData, byeData)=>{
+ipcMain.handle('scheduler:saveSchedule', (e, outputData, byeData)=>{
   //Open a file dialog to determine the output file
   let filename = dialog.showSaveDialog({
     filters: [{

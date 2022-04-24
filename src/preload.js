@@ -7,5 +7,5 @@ contextBridge.exposeInMainWorld('api', {
     importTeamInfo: ()=>ipcRenderer.invoke('scheduler:importTeamInfo'),
     importTemplates: async ()=> {return await ipcRenderer.invoke('scheduler:importTemplates')},
     launchTeamPreview: (teamPreview, teamNum)=>ipcRenderer.invoke('scheduler:launchTeamPreview', teamPreview, teamNum),
-    saveSchedule: (outputData, byeData)=>ipcRenderer.invoke('scheduler:saveSchedule', outputData, byeData)
+    saveSchedule: (outputData, byeData)=>ipcRenderer.invoke('scheduler:saveSchedule', outputData, byeData),
 });
