@@ -5,11 +5,6 @@
         <span align="center"><a class="previous round" id="previous_month">&#8249;</a></span>
         <h1 id="currentMonth">December 2019</h1>
         <span align="center"><a class="next round" id="next_month">&#8250;</a></span>
-        <!-- Callbacks -->
-        <script>
-          document.getElementById("previous_month").addEventListener('click', ()=>{import('./scheduler.js').then((Module)=>{Module.updateMonth(-1)})});
-          document.getElementById("next_month").addEventListener('click', ()=>{import('./scheduler.js').then((Module)=>{Module.updateMonth(1)})});
-        </script>
       </div>
       <div class="header-weekdays">
         <span>sun</span>

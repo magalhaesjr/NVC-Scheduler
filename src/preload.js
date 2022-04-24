@@ -6,6 +6,6 @@ contextBridge.exposeInMainWorld('api', {
     assignTeams: (costMatrix)=>ipcRenderer.invoke('scheduler:assignTeams', costMatrix),
     importTeamInfo: ()=>ipcRenderer.invoke('scheduler:importTeamInfo'),
     importTemplates: async ()=> {return await ipcRenderer.invoke('scheduler:importTemplates')},
-    launchTeamPreview: (teamPreview, teamNum)=>ipcRenderer.invoke('scheduler:launchTeamPreview', teamPreview, teamNum),
-    saveSchedule: (outputData, byeData)=>ipcRenderer.invoke('scheduler:saveSchedule', outputData, byeData),
+    launchTeamPreview: (channel, msg)=>ipcRenderer.invoke('scheduler:launchTeamPreview', channel, msg),
+    saveSchedule: (channel, msg)=>ipcRenderer.invoke('scheduler:saveSchedule', channel, msg)
 });
