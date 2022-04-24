@@ -480,11 +480,13 @@ class Template {
     this.updateSchedule(index,oldDates);
 
     //Remove blackouts from team previews
+    console.log(this._teamPreview[0].blackouts);
     this._teamPreview.forEach(e=>{
-      e = e.blackouts.filter(b=>{
-        return(b!==inputDate);
+      e.blackouts = e.blackouts.filter(b=>{
+        return(b!=inputDate);
       });
     });
+    console.log(this._teamPreview[0].blackouts);
   }
   updateSchedule(index,oldDates){
     //Where to start the rescheduling

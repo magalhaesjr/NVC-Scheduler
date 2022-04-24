@@ -42,6 +42,9 @@ window.api.onStart((e, season) => {
   //set the html pages displays correctly
   document.getElementsByClassName('stages')[0].setAttribute('hide', false);
   document.getElementById("one").setAttribute('checked', "checked");
+
+  // Set the final form submission action
+  document.getElementById("scheduleForm").addEventListener('submit', ()=>outputSchedule());
   
   //load all the templates from the database
   loadTemplateChoices(season);
@@ -145,7 +148,6 @@ export function assignTeamNumbers() {
     }
   }
   //Evaluate the algorithm
-  //let teamInd = munkres(costMatrix);
   window.api.assignTeams(costMatrix).then((teamInd)=>{
     //Update the Team info table, and then do the updates from there
     let table = document.getElementById('teamInfoBody');
@@ -171,13 +173,11 @@ export function buildScheduleTable() {
   let schedule = loadedTemplate.get('schedule');
 
   //Starting date
-  //let currentDate = document.getElementById('start_date').valueAsDate;
   let currentDate = document.getElementById('start_date').valueAsDate;
   currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(),
     currentDate.getUTCDate());
   //set the start date as a day
   let currentDay = currentDate.getUTCDate();
-  //currentDate.setUTCDate(currentDay); //silly timezone bullshit
   //Starting court number
   let startCourt = document.getElementById('start_court').valueAsNumber - 1;
 
@@ -247,11 +247,11 @@ export function buildScheduleTable() {
         brow.appendChild(utils.setCellText((startCourt + schedule.week[i].timeSlot[j].match[k].court).toString()));
         cell = utils.setCellText(schedule.week[i].timeSlot[j].match[k].team1.toString(), 'A');
         utils.setAttributes(cell,{'class':"teamCell"});
-        cell.addEventListener('click', ()=>launchTeamPreview(schedule.week[i].timeSlot[j].match[k].team1));
+        cell.addEventListener('click', (event)=>launchTeamPreview(event));
         brow.appendChild(cell);
         cell = utils.setCellText(schedule.week[i].timeSlot[j].match[k].team2.toString(), 'A');
         utils.setAttributes(cell,{'class':"teamCell"});
-        cell.addEventListener('click', ()=>launchTeamPreview(schedule.week[i].timeSlot[j].match[k].team2));
+        cell.addEventListener('click', (event)=>launchTeamPreview(event));
         brow.appendChild(cell);
       }
     }
@@ -283,6 +283,12 @@ export function buildScheduleTable() {
     //add to the right form
     preview.appendChild(c2);
   }
+  // Add event listeners for the final table
+  let allDays = preview.querySelectorAll('.teamCell');
+  for(let d = 0; d < allDays.length; d++){
+    allDays[d].addEventListener('click', (event)=>launchTeamPreview(event));
+  }
+
   //reset the template with correct dates
   loadedTemplate.set('schedule', schedule);
 
@@ -355,13 +361,15 @@ export function drawCalendar(template, startDate) {
       finalCalendar.replaceChild(document.importNode(template.children[c], true),
         finalCalendar.children[c]);
     }
-    // Reset callbacks
-    schedCalendar.querySelector(".previous").addEventListener('click', ()=>{updateMonth(-1)});
-    schedCalendar.querySelector(".next").addEventListener('click', ()=>{updateMonth(1)});
   } else {
     schedCalendar.appendChild(document.importNode(template, true));
     finalCalendar.appendChild(document.importNode(template, true));
   }
+  // Reset callbacks
+  schedCalendar.querySelector(".previous").addEventListener('click', ()=>{updateMonth(-1)});
+  schedCalendar.querySelector(".next").addEventListener('click', ()=>{updateMonth(1)});
+  finalCalendar.querySelector(".previous").addEventListener('click', ()=>{updateMonth(-1)});
+  finalCalendar.querySelector(".next").addEventListener('click', ()=>{updateMonth(1)});
 
   //Now update the calendar with the actual play dates
   updateCalendarPreview();
@@ -476,8 +484,11 @@ export function initCalendarObject() {
   fetch("./calendarTemplate.html").then(response=>response.text()).then((template)=>{
     let parser = new DOMParser();
     let doc = parser.parseFromString(template, 'text/html');
+
+    // Set the callbacks for month navigation
+    let calObject = doc.getElementById("calendarObject").content;
     //Draw the initial month in the calendar objects
-    drawCalendar(doc.getElementById("calendarObject").content, document.getElementById('start_date').valueAsDate);
+    drawCalendar(calObject, document.getElementById('start_date').valueAsDate);
   });
 }
 
@@ -772,11 +783,12 @@ export function addByeRow() {
   }
 }
 
-export function launchTeamPreview(teamNum) {
+export function launchTeamPreview(event) {
+  // Derive team number from event
   // Create an object to send over comms
   const msg = {
     teamPreview : loadedTemplate.get('teamPreview'),
-    teamNum : teamNum
+    teamNum : event.target.text
   };
   //Tell the main thread to launch a preview window
   window.api.launchTeamPreview('scheduler:launchTeamPreview', msg);
@@ -789,6 +801,7 @@ export function nextStep() {
     return (e.checked);
   });
   step += 1;
+  console.log(step);
   if (step === 4) {
     step = 4;
     let nextBtn = document.getElementById("nextButton");
@@ -839,8 +852,13 @@ export function outputSchedule() {
   }
   console.log(outputData);
 
+  // Create message
+  const outMsg = {
+    outputData : outputData,
+    byeData : byeData
+  };
   // Pass data to save
-  window.api.saveSchdule('scheduler:saveSchedule', outputData, byeData).then(()=>{
+  window.api.saveSchedule('scheduler:saveSchedule', outMsg).then(()=>{
     location.reload();
   });
 }
@@ -873,7 +891,7 @@ export function setChecked(id) {
   if (step === 5) {
     let nextBtn = document.getElementById("nextButton");
     nextBtn.innerHTML = "<span>Submit</span>";
-    nextBtn.setAttribute('type', "button");
+    nextBtn.setAttribute('type', "submit");
   } else {
     let nextBtn = document.getElementById("nextButton");
     nextBtn.innerHTML = "<span>Next</span>";

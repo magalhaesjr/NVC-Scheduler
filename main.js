@@ -105,7 +105,6 @@ ipcMain.handle('scheduler:launchTeamPreview',(e, channel, msg)=>{
     //Cleanup stuff
     previewWin.on('close', ()=> previewWin=null);
   }else{
-    console.log(teamNum);
     //just send an update
     previewWin.webContents.send('preview:updatePreview', teamNum);
   }
@@ -118,14 +117,14 @@ ipcMain.handle('scheduler:assignTeams', (e, costMatrix) =>{
 
 // Load team info from excel csv
 ipcMain.handle('scheduler:importTeamInfo', ()=>{
-  let filename = dialog.showOpenDialog({
+  let filename = dialog.showOpenDialogSync({
     properties: ['openFile'],
     filters: [{
       name: 'CSV',
       extensions: ['csv']
     }]
   });
-
+console.log(filename);
   //Import the work workbook
   let wb = xlsx.readFile(filename[0], {
     raw: true
@@ -151,9 +150,15 @@ ipcMain.handle('scheduler:importTemplates', ()=>{
   return storedTemplates;
 });
 
-ipcMain.handle('scheduler:saveSchedule', (e, outputData, byeData)=>{
+ipcMain.handle('scheduler:saveSchedule', (e, channel, msg)=>{
+  // Pull data from message
+  console.log(channel);
+  console.log(msg);
+  let outputData = msg.outputData;
+  let byeData = msg.byeData;
+
   //Open a file dialog to determine the output file
-  let filename = dialog.showSaveDialog({
+  let filename = dialog.showSaveDialogSync({
     filters: [{
       name: 'CSV',
       extensions: ['csv']
