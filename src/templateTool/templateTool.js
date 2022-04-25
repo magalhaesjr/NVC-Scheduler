@@ -1,15 +1,6 @@
 //This file loads up the template tool. Which is used to add, modify, and remove
 //templates from the database
-
-//need the remote library for electron function references in the main thread
-/*const {remote,ipcRenderer} = require('electron');
-const path = require('path');
-const fs = require('fs');
-const xlsx = require('xlsx');
-//Template info
-const Template = require('../template').Template;
-*/
-import Template from '../template.js';
+import {Template} from '../template.js';
 
 //variables to put in the table
 const tableHeaders = ['title','season','numTeams','numCourts','numWeeks','numByes',
@@ -20,20 +11,6 @@ const numericHeaders = ['numTeams','numCourts','numWeeks','numByes','minMatches'
 const boolHeaders = ['balanced','equalMatches','hasPools'];
 //columns that can be edited
 const inputHeaders = ['title','hasPools','description'];
-/*
-//Check for bad initialization of env variables
-if (typeof process.env.NODE_ENV==='undefined'){
-  process.env.NODE_ENV = "production";
-}
-
-//Autoload the database
-let templateFile;
-if (process.env.NODE_ENV==="production"){
-    templateFile = path.join(process.resourcesPath, 'extraResources','Templates.json');
-} else{
-    templateFile = path.join(path.dirname(__dirname), '../extraResources','Templates.json');
-}
-*/
 //All the templates extracted from the Database
 let dbTemplates = [];
 
@@ -42,85 +19,56 @@ let dbTemplates = [];
  *****                        Main Thread Comms                          *****
  *****                                                                   *****
  ****************************************************************************/
-// Once a season is chosen, you start the process
-window.api.onStart((e, season) => {
-  //set the html pages displays correctly
-  document.getElementsByClassName('stages')[0].setAttribute('hide', false);
-  document.getElementById("one").setAttribute('checked', "checked");
-  
+window.toolApi.loadTemplates((e, storedTemplates) => {
   //load all the templates from the database
-  loadTemplateChoices(season);
+  loadTemplatesFromDatabase(storedTemplates);
 });
 
-//simple script for getting a filename
-window.toolApi.on('xlsx-file-input',(e,filename)=>{
-  //Read in the excel sheet and convert to a JSON object
-  readExcelFile(filename[0],false);
-});
-//simple script for replacing the templates
-ipcRenderer.on('xlsx-file-replace',(e,filename)=>{
-  //Read in the excel sheet and convert to a JSON object
-  readExcelFile(filename[0],true);
-});
-//Load templatees
-ipcRenderer.on('load-Templates',e=>{
+window.toolApi.importFile((e, msg) => {
   //load all the templates from the database
-  loadTemplatesFromDatabase();
+  importFile(msg);
 });
 /*****************************************************************************
  *****                                                                   *****
  *****                             Functions                             *****
  *****                                                                   *****
  ****************************************************************************/
-function readExcelFile(file,replaceFlag)
+function importFile(msg)
 {
-  //Read the workbook from the filename
-  let wb = xlsx.readFile(file);
+  // Retrieve data from msg
+  let wb = msg.workbook;
+  let replaceFlag = msg.replace;
 
   //initialize Template (in loop we will initialize a new object instance)
   let tempTemplate = [];
 
   //First sheet in the workbook should be template info
-  if (wb.SheetNames[0]==='TemplateInfo')
-  {
+  if (wb.SheetNames[0]==='TemplateInfo'){
     //We can just pull information from template info to guide our building.
     //Convert to a json object so its easier to work with
-    let templateInfo = xlsx.utils.sheet_to_json(wb.Sheets.TemplateInfo);
+    window.toolApi.readSheet(wb.Sheets.TemplateInfo).then((templateInfo)=>{
+      //Loop on the number of rows (or templates) in the entry
+      for(let i=0;i<templateInfo.length;i++){
+        tempTemplate = new Template();
+        //Import the template information from the template info sheet
+        tempTemplate.importInfoFromSheet(templateInfo[i]);
 
-    //Loop on the number of rows (or templates) in the entry
-    for(let i=0;i<templateInfo.length;i++)
-    {
-      tempTemplate = new Template();
-      //Import the template information from the template info sheet
-      tempTemplate.importInfoFromSheet(templateInfo[i]);
-
-      //Now build the schedule from the table
-      tempTemplate.buildTemplateSchedule(xlsx.utils.sheet_to_json(wb.Sheets['Schedule_' + templateInfo[i]['Schedule ID']]),
-    templateInfo[i]['Schedule ID']);
-      //Add the template to the Database
-      if(replaceFlag){
-        replaceTemplate(tempTemplate);
-      }else{
-        addTemplate(tempTemplate);
+        window.toolApi.readSheet(wb.Sheets['Schedule_' + templateInfo[i]['Schedule ID']]).then((schedule)=>{
+          //Now build the schedule from the table
+          tempTemplate.buildTemplateSchedule(schedule, templateInfo[i]['Schedule ID']);
+          //Add the template to the Database
+          if(replaceFlag){
+            replaceTemplate(tempTemplate);
+          }else{
+            addTemplate(tempTemplate);
+          }
+        });
       }
-    }
+    });
   }
-  else
-  {
-    //No template info, we should build the schedule from the template sheet and
-    //derive all information from that
-    for(let i=0;i<wb.SheetNames.length();i++)
-    {
-      tempTemplate = new Template();
-      //Import the template information from the template info sheet
-      if (wb.SheetNames[0].contains('Sched'))
-      {
-        tempTemplate.importAllFromSheet(templateInfo);
-      }
-    }
+  else {
+    console.error("This is not supported, template info sheet required");
   }
-  //Update the html page with the new entries in the Database
-  //console.log(dbTemplates);
 }
 
 // Write templates file
@@ -128,11 +76,11 @@ function writeTemplates()
 {
   // Convert all template objects to the JSON format
   let storedTemplates = Array();
-  for (iTemp = 0; iTemp < dbTemplates.length; iTemp++){
+  for (let iTemp = 0; iTemp < dbTemplates.length; iTemp++){
     storedTemplates.push(dbTemplates[iTemp].exportToDatabase()); 
   }
   // Just write the JSON objects to disk
-  fs.writeFileSync(templateFile, JSON.stringify(storedTemplates));
+  window.toolApi.writeTemplate(JSON.stringify(storedTemplates));
 }
 
 //Add the chosen template to the database
@@ -166,22 +114,8 @@ function addTemplate(template)
 }
 
 //Load templates from the Database
-function loadTemplatesFromDatabase()
+function loadTemplatesFromDatabase(storedTemplates)
 {
-  // Read the templates from the json file into a raw buffer
-  let rawBuffer = fs.readFileSync(templateFile);
-
-  // Parse into JSON objects
-  let storedTemplates = JSON.parse(rawBuffer);
-  // Sort templates by season and then numTeams
-  storedTemplates.sort((a, b) =>{
-    let diff = a.season.localeCompare(b.season);
-    if(diff === 0){
-      diff = a.numTeams - b.numTeams;
-    }
-    return diff
-  });
-  
   // Sort through the stored templates and create objects for the selected season
   for(let t = 0; t < storedTemplates.length; t++){
     dbTemplates.push(new Template());
@@ -217,7 +151,7 @@ function drawTemplateTable()
       //if this is editable you need to add an input field
       if (inputHeaders.some(e=>{return(e===tableHeaders[h]);})){
         inCell = document.createElement("INPUT");
-        inCell.setAttribute('onchange',`updateRecord(event)`);
+        inCell.addEventListener('change', (event)=>updateRecord(event));
         inCell.setAttribute('Template',i);
         inCell.setAttribute('Field',tableHeaders[h]);
         if (numericHeaders.some(e=>{return(e===tableHeaders[h]);})){

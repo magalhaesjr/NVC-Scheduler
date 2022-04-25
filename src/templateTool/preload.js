@@ -2,5 +2,8 @@
 const {contextBridge, ipcRenderer} = require('electron');
 // Expose interfaces for scheduler
 contextBridge.exposeInMainWorld('toolApi', {
-    readExcelFile: (filename)=>ipcRenderer.invoke('templateTool:readExcelFile', filename
+    loadTemplates: (callback)=>ipcRenderer.on('load-Templates', callback),
+    importFile: (callback)=>ipcRenderer.on('templateTool:importFile', callback),
+    writeTemplate: (template)=>ipcRenderer.invoke('templateTool:writeTemplate', template),
+    readSheet: (sheet)=>ipcRenderer.invoke('templateTool:readSheet', sheet)
 });
