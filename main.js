@@ -196,8 +196,13 @@ ipcMain.handle('scheduler:saveSchedule', (e, channel, msg)=>{
  *****                   Template Tool Thread Comms                      *****
  *****                                                                   *****
  ****************************************************************************/
-//ipcMain.handle('templateTool:readExcelFile,(filename)=>{
-//}
+ipcMain.handle('templateTool:writeTemplate',(e, template)=>{
+  fs.writeFileSync(templateFile, template);
+});
+
+ipcMain.handle('templateTool:readSheet',(e, sheet)=>{
+  return xlsx.utils.sheet_to_json(sheet);
+});
 /*******************************************************************************
  *****                                                                      *****
  *****                               MENUS                                  *****
@@ -262,7 +267,21 @@ const menuTemplate = [{
 
             //Load the templates when the window is ready
             toolWin.webContents.on('did-finish-load',()=>{
-              toolWin.webContents.send('load-Templates');
+              // Read the templates from the json file into a raw buffer
+              let rawBuffer = fs.readFileSync(templateFile);
+
+              // Parse into JSON objects
+              let storedTemplates = JSON.parse(rawBuffer);
+              // Sort templates by season and then numTeams
+              storedTemplates.sort((a, b) =>{
+                let diff = a.season.localeCompare(b.season);
+                if(diff === 0){
+                  diff = a.numTeams - b.numTeams;
+                }
+                return diff
+              });
+  
+              toolWin.webContents.send('load-Templates', storedTemplates);
             });
 
             //When the new window is in focus then you set the menu to the tool menu
@@ -306,20 +325,37 @@ const templateToolMenu = [
       label: 'Add excel sheet to db',
       click(){
         //Open a file input window to grab the filename to upload
-        let filename = dialog.showOpenDialog({ properties: [ 'openFile'], filters: [{ name: 'XLSX', extensions: ['xlsx'] }]});
+        let filename = dialog.showOpenDialogSync({ properties: [ 'openFile'], filters: [{ name: 'XLSX', extensions: ['xlsx'] }]});
+        //Read the workbook from the filename
+        let wb = xlsx.readFileSync(filename.toString());
+
+        // msg
+        let msg = {
+          workbook : wb,
+          replace : false
+        };
 
         //send the filename to the tool window
-        toolWin.webContents.send('xlsx-file-input',filename);
+        toolWin.webContents.send('templateTool:importFile', msg);
       },
     },
     {
       label: 'Replace db templates with excel sheet',
       click(){
         //Open a file input window to grab the filename to upload
-        let filename = dialog.showOpenDialog({ properties: [ 'openFile'], filters: [{ name: 'XLSX', extensions: ['xlsx'] }]});
+        let filename = dialog.showOpenDialogSync({ properties: [ 'openFile'], filters: [{ name: 'XLSX', extensions: ['xlsx'] }]});
+        
+        //Read the workbook from the filename
+        let wb = xlsx.readFileSync(filename.toString());
+
+        // msg
+        let msg = {
+          workbook : wb,
+          replace : true
+        };
 
         //send the filename to the tool window
-        toolWin.webContents.send('xlsx-file-replace',filename);
+        toolWin.webContents.send('templateTool:importFile', msg);
       },
     },{label: 'Load Template'}]}];
 if(process.env.NODE_ENV !== 'production'){
