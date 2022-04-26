@@ -1,6 +1,5 @@
 //includes
-const {remote,ipcRenderer} = require('electron');
-const utils = require('./util.js');
+import * as utils from './util.js';
 
 /*****************************************************************************
  *****                                                                   *****
@@ -8,7 +7,7 @@ const utils = require('./util.js');
  *****                                                                   *****
  ****************************************************************************/
 //All the templates extracted from the Database
-let teamPreviews;
+let teamPreviews = [];
 const datesPerRow = 5;
 
 /*****************************************************************************
@@ -16,8 +15,8 @@ const datesPerRow = 5;
  *****                        Main Thread Comms                          *****
  *****                                                                   *****
  ****************************************************************************/
-//get new team preview and index to display
-ipcRenderer.on('init-team-preview',(e,teamPreview,teamNum)=>{
+// Initialize team preview
+window.previewApi.initTeamPreview((e, teamPreview, teamNum) => {
   //Set the new team preview
   teamPreviews = teamPreview;
 
@@ -27,9 +26,9 @@ ipcRenderer.on('init-team-preview',(e,teamPreview,teamNum)=>{
   //Now set the team to displays
   displayPreview(teamNum);
 });
-//Just update the team number
-ipcRenderer.on('update-team-preview',(e,teamNum)=>{
-  //Now set the team to displays
+
+// Update the team number
+window.previewApi.updateTeamPreview((e, teamNum) => {
   displayPreview(teamNum);
 });
 
@@ -66,7 +65,7 @@ ipcRenderer.on('update-team-preview',(e,teamNum)=>{
  {
    //Change the title
    let option = document.getElementById('teamNameTag');
-   if(option.selectedIndex!==teamNum-1)
+   if(option.selectedIndex !== teamNum-1)
    {
      option.selectedIndex = teamNum-1;
      displayPreview(teamNum);
@@ -94,7 +93,6 @@ ipcRenderer.on('update-team-preview',(e,teamNum)=>{
    document.getElementById('teamNumber').innerHTML='Team ' + loadedPreview.teamNumber.toString();
 
    //Add in all the bye requests for the team
-   console.log(loadedPreview);
    let br = document.getElementById('teamByeRequest');
    br.innerText = "Bye Requests : ";
    if (loadedPreview.byeRequests.length===0){
@@ -143,23 +141,28 @@ ipcRenderer.on('update-team-preview',(e,teamNum)=>{
         //Check what type of night it is
         if(loadedPreview.blackouts.some(e=>{return(e===allDates[r]);})){
           playerRow[p].appendChild(utils.setCellText('',undefined,{'class':'tp_blackout',
-        'colspan':"3"}));
-      }else if (loadedPreview.byeWeeks.some((e,ind)=>{
-        return(e===allDates[r] && loadedPreview.byeTimes[ind]===allTimes[p]);})){
+            'colspan':"3"}));
+        }else if (loadedPreview.byeWeeks.some((e,ind)=>{
+          return(e===allDates[r] && loadedPreview.byeTimes[ind]===allTimes[p]);})){
           playerRow[p].appendChild(utils.setCellText('',undefined,{'class':'tp_bye',
-        'colspan':"3"}));
+            'colspan':"3"}));
         }else{
           nightMatch = loadedPreview.playWeek.findIndex((e,ind)=>{
             return(e===allDates[r] && loadedPreview.time[ind]===allTimes[p]);
           });
-          if (nightMatch==-1){playerRow[p].appendChild(utils.setCellText('',undefined,{'class':'tp_bye',
-        'colspan':"3"}));continue;}
+          if (nightMatch === -1){
+            playerRow[p].appendChild(utils.setCellText('',undefined,{'class':'tp_bye',
+              'colspan':"3"}));continue;
+          }
           playerRow[p].appendChild(utils.setCellText(allTimes[p],undefined,{'class':'tp_play'}));
           playerRow[p].appendChild(utils.setCellText(
             loadedPreview.court[nightMatch].toString(),undefined,{'class':'tp_play'}));
-          playerRow[p].appendChild(utils.setCellText(
+          // Team num 
+          let teamCell = utils.setCellText(
             loadedPreview.opponents[nightMatch].toString(),undefined,{'class':'tp_play',
-            'onclick':`displayPreview(${loadedPreview.opponents[nightMatch]})`,'link':true}));
+            'link':true});
+          teamCell.addEventListener('click', (event)=>{console.log(event);displayPreview(event.target.innerText)});
+          playerRow[p].appendChild(teamCell);
         }
     }
 
@@ -212,7 +215,7 @@ ipcRenderer.on('update-team-preview',(e,teamNum)=>{
   *****                             Callbacks                             *****
   *****                                                                   *****
   ****************************************************************************/
-  function changePreviewTeam(){
+  export function changePreviewTeam(){
     //get the selected preview team and then update the preview
     let handle = document.getElementById('teamNameTag');
     displayPreview(handle.options[handle.selectedIndex].value);
