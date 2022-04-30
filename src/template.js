@@ -1,5 +1,3 @@
-//Includes
-const remote = require('electron');
 //this file includes classes related to the schedule templates
 
 /*****************************************************************************
@@ -432,8 +430,14 @@ class Template {
     //Check the condition
     if(index==-1){alert('This date is not a league date');return;}
 
+    // Find the next free week
+    let nextWeek = index + 1;
+    while(this._schedule.week[nextWeek].blackout){
+      nextWeek++;
+    }
+
     //Create a new week for the blackout
-    let blackOut = new Week(index+1, inputDate,'Blackout');
+    let blackOut = new Week(nextWeek, inputDate,'Blackout');
     blackOut.blackout = true;
 
     //Now insert the blackout week into the schedule
@@ -449,7 +453,7 @@ class Template {
     //Push blackout
     oldDates.push('20/20/2000');
 
-    this.updateSchedule(index+1,oldDates);
+    this.updateSchedule(nextWeek,oldDates);
 
     //Add this blackout to the team previews
     this._teamPreview.forEach(e=>{e.blackouts.push(inputDate);});
@@ -476,11 +480,13 @@ class Template {
     this.updateSchedule(index,oldDates);
 
     //Remove blackouts from team previews
+    console.log(this._teamPreview[0].blackouts);
     this._teamPreview.forEach(e=>{
-      e = e.blackouts.filter(b=>{
-        return(b!==inputDate);
+      e.blackouts = e.blackouts.filter(b=>{
+        return(b!=inputDate);
       });
     });
+    console.log(this._teamPreview[0].blackouts);
   }
   updateSchedule(index,oldDates){
     //Where to start the rescheduling
@@ -547,5 +553,4 @@ function copyObjectValues(objOut,objIn){
 }
 
 //Export
-module.exports.Template = Template;
-module.exports.TeamInfo = TeamInfo;
+export {Template, TeamInfo};

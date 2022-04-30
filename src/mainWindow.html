@@ -10,10 +10,9 @@
 <body>
   <h1>NVC Scheduler</h1>
   <!--Script which will handle all of the actual functionality for this window-->
-  <script type = "text/javascript" src = "./scheduler.js">
-    //require('./scheduler.js');
-  </script>
-  <form id="scheduleForm" action="JavaScript:outputSchedule()">
+  <script type = "module" src = "./scheduler.js"></script>
+  <!--<form id="scheduleForm" action="JavaScript:outputSchedule()">-->
+  <form id="scheduleForm">
     <div id="formDiv" class="formPanel" hide=true>
 
       <!-- These are the actual input buttons for the steps in the process-->
@@ -25,18 +24,27 @@
 
       <!-- These are the number labels for the steps in the process -->
       <div class="stages" hide=true>
-    		<label for="one" onclick="setChecked('one')">1</label>
-    		<label for="two" onclick="setChecked('two')">2</label>
-    		<label for="three" onclick="setChecked('three')">3</label>
-    		<label for="four" onclick="setChecked('four')">4</label>
-    		<label for="five" onclick="setChecked('five')">5</label>
+    		<label for="one">1</label>
+    		<label for="two">2</label>
+    		<label for="three">3</label>
+    		<label for="four">4</label>
+    		<label for="five">5</label>
     	</div>
       <span class="progress"><span></span></span>
       <br>
       <div align="center">
-      <button class="transitionbutton" id="nextButton" onclick="nextStep()" type="button" form="scheduleForm">
+      <button class="transitionbutton" id="nextButton" type="button" form="scheduleForm">
         <span>Next</span>
       </button>
+      <script>
+        // Add callback that loads the module and then executes the call back
+        document.getElementById("nextButton").addEventListener('click', ()=>{import('./scheduler.js').then((Module)=>{Module.nextStep();})});
+        document.getElementById("one").addEventListener('click', ()=>{import('./scheduler.js').then((Module)=>{Module.setChecked('one');})});
+        document.getElementById("two").addEventListener('click', ()=>{import('./scheduler.js').then((Module)=>{Module.setChecked('two');})});
+        document.getElementById("three").addEventListener('click', ()=>{import('./scheduler.js').then((Module)=>{Module.setChecked('three');})});
+        document.getElementById("four").addEventListener('click', ()=>{import('./scheduler.js').then((Module)=>{Module.setChecked('four');})});
+        document.getElementById("five").addEventListener('click', ()=>{import('./scheduler.js').then((Module)=>{Module.setChecked('five');})});
+      </script>
     </div>
 
       <!-- A panel for each step in the process. THe panels are made visible at
@@ -46,12 +54,28 @@
         <div class="stepPanel" id="form_step_2" data-panel="two">
           <h2 text-align=center>Schedule Information</h2>
           <label for="start_date">Start Date</label>
-          <input type="date" id='start_date' onchange="buildScheduleTable();initByeRequestTable();updateCalendarPreview();">
+          <input type="date" id='start_date'>
             <label for="start_court">First Court Number</label>
-          <input type="number" id='start_court' min=1 max=24 value=1 onchange="buildScheduleTable();initByeRequestTable();">
+          <input type="number" id='start_court' min=1 max=24 value=1>
           <h2 id="scheduleName" text-align="center"></h2>
           <div class="scheduleTable" id="schedule_preview"> </div>
           <div class="scheduleCalendar" id="schedule_date_preview"> </div>
+          <!-- Callbacks for panel 2-->
+          <script>
+            document.getElementById("start_date").addEventListener('change', ()=>{
+              import('./scheduler.js').then((Module)=>{
+                Module.buildScheduleTable();
+                Module.initByeRequestTable();
+                Module.updateCalendarPreview();
+              })
+            });
+            document.getElementById("start_court").addEventListener('change', ()=>{
+              import('./scheduler.js').then((Module)=>{
+                Module.buildScheduleTable();
+                Module.initByeRequestTable();
+              })
+            });
+          </script>
         </div>
         <div class="stepPanel" id="form_step_3" data-panel="three">
           <h2 text-align="center">Team Information</h2>
@@ -66,7 +90,14 @@
             <tbody id="teamInfoBody"></tbody>
           </table>
           <div display="block">
-          <button class="pushbutton" type="button" onclick="importTeamInfo()">Import</button>
+          <button class="pushbutton" type="button" id="importTeamBtn">Import</button>
+              <script>
+                document.getElementById("importTeamBtn").addEventListener('click', ()=>{
+                  import('./scheduler.js').then((Module)=>{
+                      Module.importTeamInfo();
+                    })
+                });
+              </script>
         </div>
           <!-- Tables for teams are built dynamically -->
         </div>
@@ -89,7 +120,14 @@
               <tbody id = byeRequestBody></tbody>
             </table>
             <br>
-            <button class="pushbutton" type="button" onclick="assignTeamNumbers()">Assign Team Numbers</button>
+            <button class="pushbutton" type="button" id="assignTeamNumBtn">Assign Team Numbers</button>
+              <script>
+                document.getElementById("assignTeamNumBtn").addEventListener('click', ()=>{
+                  import('./scheduler.js').then((Module)=>{
+                      Module.assignTeamNumbers();
+                    })
+                });
+              </script>
           </div>
         </div>
           <!-- Bye requests are built dynamically as well -->
