@@ -1,3 +1,4 @@
 release-builds/
 dist/
 node_modules/
+*.pfx
