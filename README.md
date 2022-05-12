@@ -5,7 +5,7 @@ An application for generating schedules for Newport Volleyball Club ([NVC](http:
 An installer is attached to each software [Release](https://github.com/magalhaesjr/NVC-Scheduler/releases). Running the installer will install the scheduler on your computer
 - Download an installer from the appropriate release
 - Run the installer
->**NOTE: Windows may not trust the application by default. You can override the smartscreen to proceed with the install. See [Security](https://github.com/magalhaesjr/NVC-Scheduler#Security)**
+>**NOTE: Windows may not trust the application by default (You'll see a "Windows Protected Your PC" message. You can override the smartscreen to proceed with the install. See [Security](https://github.com/magalhaesjr/NVC-Scheduler#Security)**
 - Choose an installation directory
 
 # Uninstalling
@@ -23,7 +23,12 @@ Submit issues or feature requests here ([Issues](https://github.com/magalhaesjr/
 The scheduler user interface (UI) is undergoing a migration to the [React](https://reactjs.org) framework. Some issues may be left unresolved until after the release of version 2.0.0, since the existing UI will soon be deprecated
 
 # Security
-The installer is signed with a self-signed certificate to verify its integrity. The certificate is not registered in Windows trust authority, and as such will not be trusted by Windows by default. For the privilige of being trusted, Microsoft charges ~$500 per year... Not money well spent for such a specialized application. If you wish to verify the integrity of the executable you downloaded, you can verify the file integrity by checking the file size and hashes vs the published attributes on the release page
+The installer is signed with a self-signed certificate to verify its integrity. The certificate is not registered in Windows trust authority, and as such will not be trusted by Windows by default. For the privilige of being trusted, Microsoft charges ~$500 per year... Not money well spent for such a specialized application. To override the smartscreen filter
+- Click on `More Info`
+- Click on `Run Anyway`
+
+## Verify the Installer
+If you wish to verify the integrity of the executable you downloaded, you can verify the file integrity by checking the file size and hashes vs the published attributes on the release page
 - Press <kbd>Windows</kbd> + <kbd>r</kbd>
 - Type `cmd` and click `Ok`
 - cd into the directory with the file
