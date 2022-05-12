@@ -28,7 +28,7 @@ The installer is signed with a self-signed certificate to verify its integrity. 
 - Click on `Run Anyway`
 
 ## Verify the Installer
-If you wish to verify the integrity of the executable you downloaded, you can verify the file integrity by checking the file size and hashes vs the published attributes on the release page
+If you wish to verify the integrity of the executable you downloaded, you can verify the file integrity by checking the file size and hashes vs the published attributes in the [Release Notes](https://www.github.com/magalhaesjr/NVC-Scheduler/releases) page
 - Press <kbd>Windows</kbd> + <kbd>r</kbd>
 - Type `cmd` and click `Ok`
 - cd into the directory with the file
