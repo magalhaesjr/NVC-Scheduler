@@ -23,7 +23,7 @@ Submit issues or feature requests here ([Issues](https://github.com/magalhaesjr/
 The scheduler user interface (UI) is undergoing a migration to the [React](https://reactjs.org) framework. Some issues may be left unresolved until after the release of version 2.0.0, since the existing UI will soon be deprecated
 
 # Security
-The installer is signed with a self-signed certificate to verify its integrity. The certificate is not registered in Windows trust authority, and as such will not be trusted by Windows by default. For the privilige of being trusted, Microsoft charges ~$500 per year... Not money well spent for such a specialized application. To override the smartscreen filter
+The installer is signed with a self-signed certificate to verify its integrity. The certificate is not registered in Windows trust authority, and as such will not be trusted by Windows by default. For the privilege of being trusted, Microsoft charges ~$500 per year... Not money well spent for such a specialized application. To override the smartscreen filter
 - Click on `More Info`
 - Click on `Run Anyway`
 
