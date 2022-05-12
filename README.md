@@ -5,7 +5,7 @@ An application for generating schedules for Newport Volleyball Club ([NVC](http:
 An installer is attached to each software [Release](https://github.com/magalhaesjr/NVC-Scheduler/releases). Running the installer will install the scheduler on your computer
 - Download an installer from the appropriate release
 - Run the installer
->**NOTE: Windows may not trust the application by default. You can override the smartscreen to proceed with the install. See [Security](README.md#Security)**
+>**NOTE: Windows may not trust the application by default. You can override the smartscreen to proceed with the install. See [Security](https://github.com/magalhaesjr/NVC-Scheduler#Security)**
 - Choose an installation directory
 
 # Uninstalling
