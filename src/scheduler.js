@@ -410,7 +410,7 @@ export function importTeamInfo() {
       //Team Name
       row.children[1].children[0].setAttribute('value', e["Page Title"]);
       //Mapping Code
-      row.children[2].children[0].setAttribute('value', e["Mapping Code"]);
+      row.children[2].children[0].setAttribute('value', e["Team/Division IDs"]);
     });
     //Update the loaded team information
     updateTeamInfo(true);
