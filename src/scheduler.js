@@ -409,8 +409,13 @@ export function importTeamInfo() {
       row.children[0].children[0].setAttribute('value', i + 1);
       //Team Name
       row.children[1].children[0].setAttribute('value', e["Page Title"]);
-      //Mapping Code
-      row.children[2].children[0].setAttribute('value', e["Team/Division IDs"]);
+      if (Object.prototype.hasOwnProperty.call(e, "Mapping Code")) {
+        //Mapping Code
+        row.children[2].children[0].setAttribute('value', e["Mapping Code"]);
+      } else {
+        //Mapping Code
+        row.children[2].children[0].setAttribute('value', e["Team/Division IDs"]);
+      }
     });
     //Update the loaded team information
     updateTeamInfo(true);
