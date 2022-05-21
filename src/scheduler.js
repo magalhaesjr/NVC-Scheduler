@@ -174,8 +174,8 @@ export function buildScheduleTable() {
 
   //Starting date
   let currentDate = document.getElementById('start_date').valueAsDate;
-  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(),
-    currentDate.getUTCDate());
+  currentDate = new Date(currentDate.getUTCFullYear(), currentDate.getUTCMonth(),
+    currentDate.getUTCDate(), currentDate.getUTCHours(), currentDate.getUTCMinutes());
   //set the start date as a day
   let currentDay = currentDate.getUTCDate();
   //Starting court number
