@@ -1,6 +1,8 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 // Footer for main page
 import Box from '@mui/material/Box';
+import ScheduleForm from '../components/schedule-form';
+/*
 import Typography from '@mui/material/Typography';
 import {
   assignTeamNumbers,
@@ -8,18 +10,18 @@ import {
   importTeamInfo,
   initByeRequestTable,
   nextStep,
-  setChecked,
   updateCalendarPreview,
 } from '../scheduler';
-import './Main.css';
-
 const d = new Date();
+*/
+import './Main.css';
 
 const Main = () => {
   return (
-    <Box overflow="auto">
+    <Box width="100%" height="100%">
+      <ScheduleForm />
+      {/*
       <Typography variant="h1">NVC Scheduler</Typography>
-      <form id="scheduleForm">
         <Box id="formDiv" className="formPanel" sx={{ display: 'none' }}>
           <input
             id="one"
@@ -171,7 +173,7 @@ const Main = () => {
             </div>
           </div>
         </Box>
-      </form>
+            */}
     </Box>
   );
 };

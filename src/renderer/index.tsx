@@ -1,5 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { store } from './redux/store';
 import App from './App';
 
@@ -7,7 +9,9 @@ import App from './App';
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 root.render(
-  <Provider store={store}>
-    <App />
-  </Provider>
+  <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </LocalizationProvider>
 );
