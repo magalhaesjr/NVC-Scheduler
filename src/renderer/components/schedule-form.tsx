@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, Step, StepButton, Stepper } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import TemplatePanel from './template-panel';
 import DatePanel from './date-panel';
 
 interface Props {
@@ -19,7 +20,7 @@ const TabPanel = ({ label }: Props) => {
 const steps = [
   {
     label: 'Select template',
-    panel: <TabPanel label="1" />,
+    panel: <TemplatePanel />,
   },
   {
     label: 'Select start date',

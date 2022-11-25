@@ -12,7 +12,7 @@ const initialState: ScheduleState = {
   startDate: dayjs().toJSON(),
 };
 
-export const templateSlice = createSlice({
+export const scheduleSlice = createSlice({
   name: 'schedule',
   initialState,
   reducers: {
@@ -22,8 +22,8 @@ export const templateSlice = createSlice({
   },
 });
 
-export const { setStartDate } = templateSlice.actions;
-export default templateSlice.reducer;
+export const { setStartDate } = scheduleSlice.actions;
+export default scheduleSlice.reducer;
 
 export const selectStartDate = (state: RootState): Dayjs =>
   dayjs(state.schedule.startDate);
