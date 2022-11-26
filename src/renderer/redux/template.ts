@@ -24,6 +24,11 @@ const initialState: TemplateState = {
 /** Sagas */
 export const LOAD_TEMPLATES = 'LOAD_TEMPLATES';
 export const loadTemplates = () => ({ type: LOAD_TEMPLATES });
+export const UPDATE_ACTIVE = 'UPDATE_ACTIVE';
+export const updateActiveTemplate = (active: string) => ({
+  type: UPDATE_ACTIVE,
+  id: active,
+});
 
 /** Slice */
 export const templateSlice = createSlice({

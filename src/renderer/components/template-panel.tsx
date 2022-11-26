@@ -16,7 +16,7 @@ import { Template } from '../template';
 import {
   selectActiveTemplate,
   selectSeasonTemplates,
-  setActiveTemplate,
+  updateActiveTemplate,
 } from '../redux/template';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 
@@ -69,7 +69,7 @@ const TeamRow = ({ template }: any) => {
   const active = useAppSelector(selectActiveTemplate, isEqual);
 
   const handleChoose = (chosenId: string) => {
-    dispatch(setActiveTemplate(chosenId));
+    dispatch(updateActiveTemplate(chosenId));
   };
 
   return (

@@ -17,6 +17,10 @@ export const importTeamInfo = () => {
     ],
   });
 
+  if (filename === null || filename === undefined) {
+    return null;
+  }
+
   // Import the work workbook
   const wb = xlsx.readFile(filename[0], {
     raw: true,
