@@ -31,7 +31,7 @@ class TimeSlot {
   }
 }
 // Format for a week
-class Week {
+export class Week {
   constructor(weeknum, date, message) {
     this.weekNum = weeknum;
     this.date = date;
@@ -353,7 +353,6 @@ class Template {
     let ts;
     let team1;
     let team2;
-    console.log(this);
     // Loop through the number of teams, and build the the template for each
     for (let i = 0; i < this._numTeams; i += 1) {
       // Initialize the team preview (we'll do team number for both) +1 for 0 indexing

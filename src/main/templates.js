@@ -12,7 +12,11 @@ export const importTemplates = (templateFile) => {
   storedTemplates.sort((a, b) => {
     return a.numTeams - b.numTeams;
   });
-  return storedTemplates;
+  // Round Byes to be reasonable
+  return storedTemplates.map((t) => {
+    t.numByes = Math.round(t.numByes * 10) / 10;
+    return t;
+  });
 };
 
 // Write a new template to file

@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { Button, Step, StepButton, Stepper } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import TemplatePanel from './template-panel';
 import DatePanel from './date-panel';
+import TeamInfoPanel from './team-info-panel';
+import TeamNumberPanel from './team-number-panel';
+import FinalPreview from './final-preview';
 
 interface Props {
   label: string;
@@ -18,28 +22,24 @@ const TabPanel = ({ label }: Props) => {
 // Steps in the process
 const steps = [
   {
-    label: 'Select template',
-    panel: <TabPanel label="1" />,
+    label: 'Select Template',
+    panel: <TemplatePanel />,
   },
   {
-    label: 'Select start date',
+    label: 'Select Dates',
     panel: <DatePanel />,
   },
   {
-    label: 'Select blackouts',
-    panel: <TabPanel label="3" />,
+    label: 'Set Team Codes',
+    panel: <TeamInfoPanel />,
   },
   {
-    label: 'Import team info',
-    panel: <TabPanel label="4" />,
+    label: 'Assign Team Numbers',
+    panel: <TeamNumberPanel />,
   },
   {
-    label: 'Assign team numbers',
-    panel: <TabPanel label="5" />,
-  },
-  {
-    label: 'Finalize schedule',
-    panel: <TabPanel label="6" />,
+    label: 'Finalize Schedule',
+    panel: <FinalPreview />,
   },
 ];
 
@@ -67,10 +67,17 @@ const ScheduleForm = () => {
           ))}
         </Stepper>
       </Box>
+      <Box width="100%">
+        <Button onClick={nextStep}>
+          {step === steps.length - 1 ? 'Finish' : 'Next'}
+        </Button>
+      </Box>
+      <Box width="100%">
+        <Typography variant="h4" align="center" color="black">
+          {steps[step].label}
+        </Typography>
+      </Box>
       {steps[step].panel}
-      <Button onClick={nextStep}>
-        {step === steps.length - 1 ? 'Finish' : 'Next'}
-      </Button>
     </form>
   );
 };
