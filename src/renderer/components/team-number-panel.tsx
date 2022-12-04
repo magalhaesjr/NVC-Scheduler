@@ -42,8 +42,9 @@ const ManualRow = ({ team }: TeamProps) => {
 
   return (
     <TableRow key={`${baseKey}/row`}>
-      <TableCell key={`${baseKey}/name`}>
+      <TableCell key={`${baseKey}/number`}>
         <Select
+          key={`${baseKey}/select`}
           value={`${team.teamNum}`}
           onChange={(e) =>
             handleChange(team.teamNum, parseInt(e.target.value, 10))
@@ -51,7 +52,10 @@ const ManualRow = ({ team }: TeamProps) => {
         >
           {teams &&
             teams.map((t) => (
-              <MenuItem value={`${t.teamNum}`}>{`${t.teamNum}`}</MenuItem>
+              <MenuItem
+                key={`${baseKey}/select-${t.teamNum}`}
+                value={`${t.teamNum}`}
+              >{`${t.teamNum}`}</MenuItem>
             ))}
         </Select>
       </TableCell>

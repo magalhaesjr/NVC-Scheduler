@@ -31,7 +31,7 @@ class TimeSlot {
   }
 }
 // Format for a week
-class Week {
+export class Week {
   constructor(weeknum, date, message) {
     this.weekNum = weeknum;
     this.date = date;

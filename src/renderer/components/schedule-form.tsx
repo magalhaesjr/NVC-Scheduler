@@ -6,6 +6,7 @@ import TemplatePanel from './template-panel';
 import DatePanel from './date-panel';
 import TeamInfoPanel from './team-info-panel';
 import TeamNumberPanel from './team-number-panel';
+import FinalPreview from './final-preview';
 
 interface Props {
   label: string;
@@ -38,7 +39,7 @@ const steps = [
   },
   {
     label: 'Finalize Schedule',
-    panel: <TabPanel label="5" />,
+    panel: <FinalPreview />,
   },
 ];
 

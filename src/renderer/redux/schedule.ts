@@ -1,6 +1,9 @@
+/* eslint-disable no-underscore-dangle */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import dayjs, { Dayjs } from 'dayjs';
+import { Template, Week } from '../template';
 import type { RootState } from './store';
+import { selectActiveTemplate } from './template';
 
 export interface LeagueNight {
   week: number;
@@ -72,4 +75,30 @@ export const selectSchedule = (state: RootState): LeagueNight[] => {
       date: startDate.clone().add(w.week - 1, 'weeks'),
     };
   });
+};
+
+export const selectFinalSchedule = (state: RootState): Template | null => {
+  // Pull template
+  const finalSchedule = selectActiveTemplate(state);
+
+  if (!finalSchedule) {
+    return null;
+  }
+
+  // Pull schedule
+  const schedule = selectSchedule(state);
+  
+  const oldSched = [...finalSchedule._schedule.week];
+
+  // Rebuild schedule in the template itself
+  schedule.forEach((w, ind) => {
+    if (!w.blackout && w.date) {
+      oldSched[ind] = {
+        ...oldSched[ind],
+        date: w.date.toJSON(),
+      };
+    }
+  });
+  finalSchedule._schedule.week = oldSched;
+  return finalSchedule;
 };
