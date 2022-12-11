@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-underscore-dangle */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -12,7 +10,7 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import InputLabel from '@mui/material/InputLabel';
 import { isEqual } from 'lodash';
-import { Template } from '../template';
+import { DbTemplate } from '../../domain/template';
 import {
   selectActiveTemplate,
   selectSeasonTemplates,
@@ -20,14 +18,18 @@ import {
 } from '../redux/template';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 
-const findTeams = (templates: Template[] | null): string[] | null => {
+interface RowProps {
+  template: DbTemplate;
+}
+
+const findTeams = (templates: DbTemplate[] | null): string[] | null => {
   if (templates === null) {
     return null;
   }
 
   const outTeams = ['All'];
 
-  templates.forEach((t: any) => {
+  templates.forEach((t: DbTemplate) => {
     const teamLabel = `${t.numTeams}`;
     if (outTeams.findIndex((team) => team === teamLabel) === -1) {
       outTeams.push(teamLabel);
@@ -53,18 +55,10 @@ const Header = () => {
   );
 };
 
-const TeamRow = ({ template }: any) => {
+const TeamRow = ({ template }: RowProps) => {
   const dispatch = useAppDispatch();
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  const {
-    _id: id,
-    title,
-    numTeams,
-    numWeeks,
-    numByes,
-    numCourts,
-    description,
-  } = template;
+  const { id, title, numTeams, numWeeks, numByes, numCourts, description } =
+    template;
 
   const active = useAppSelector(selectActiveTemplate, isEqual);
 
@@ -73,7 +67,7 @@ const TeamRow = ({ template }: any) => {
   };
 
   return (
-    <TableRow key={`${id}-row`} selected={active !== null && active._id === id}>
+    <TableRow key={`${id}-row`} selected={active !== null && active.id === id}>
       <TableCell>
         <Button
           key={`${id}-select`}
@@ -95,7 +89,7 @@ const TeamRow = ({ template }: any) => {
 
 const TemplatePanel = () => {
   const [teams, setTeams] = useState<string>('');
-  const [filteredTemplates, setTemplates] = useState<Template[] | null>(null);
+  const [filteredTemplates, setTemplates] = useState<DbTemplate[] | null>(null);
 
   const templates = useAppSelector(selectSeasonTemplates, isEqual);
   // Calculate possible teams for filter
@@ -112,7 +106,9 @@ const TemplatePanel = () => {
 
   useEffect(() => {
     if (teams && teams !== 'All') {
-      setTemplates(templates.filter((t: any) => `${t.numTeams}` === teams));
+      setTemplates(
+        templates.filter((t: DbTemplate) => `${t.numTeams}` === teams)
+      );
     } else {
       setTemplates(templates);
     }
@@ -134,8 +130,8 @@ const TemplatePanel = () => {
             <Table stickyHeader>
               <Header />
               <TableBody>
-                {filteredTemplates.map((t: any) => (
-                  <TeamRow key={`${t._id}-row`} template={t} />
+                {filteredTemplates.map((t: DbTemplate) => (
+                  <TeamRow key={`${t.id}-row`} template={t} />
                 ))}
               </TableBody>
             </Table>

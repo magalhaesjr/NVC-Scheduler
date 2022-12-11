@@ -1,15 +1,15 @@
 /* eslint-disable no-underscore-dangle */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Template } from '../template';
+import { DbTemplate, importFromDatabase } from '../../domain/template';
 import type { RootState } from './store';
 
 /** Types */
 // Define state for templates
 export interface TemplateState {
   [key: string]: unknown;
-  active: Template | null;
-  beach: Template[] | null;
-  indoor: Template[] | null;
+  active: DbTemplate | null;
+  beach: DbTemplate[] | null;
+  indoor: DbTemplate[] | null;
   season: string;
 }
 
@@ -35,9 +35,9 @@ export const templateSlice = createSlice({
   name: 'templates',
   initialState,
   reducers: {
-    replaceTemplates: (state, action: PayloadAction<Template[]>) => {
-      const beachTemplates = action.payload.filter((t) => t._id[0] === 'b');
-      const indoorTemplates = action.payload.filter((t) => t._id[0] === 'i');
+    replaceTemplates: (state, action: PayloadAction<DbTemplate[]>) => {
+      const beachTemplates = action.payload.filter((t) => t.id[0] === 'b');
+      const indoorTemplates = action.payload.filter((t) => t.id[0] === 'i');
       state.beach = beachTemplates;
       state.indoor = indoorTemplates;
     },
@@ -45,8 +45,8 @@ export const templateSlice = createSlice({
       state.season = action.payload;
     },
     setActiveTemplate: (state, action: PayloadAction<string>) => {
-      const active = (state[state.season] as Template[]).find(
-        (t: Template) => t._id === action.payload
+      const active = (state[state.season] as DbTemplate[]).find(
+        (t: DbTemplate) => t.id === action.payload
       );
       if (active) {
         state.active = active;
@@ -62,14 +62,13 @@ export default templateSlice.reducer;
 
 /** Selectors */
 export const selectSeasonTemplates = (state: RootState) => {
-  return state.templates[state.templates.season] as Template[];
+  return state.templates[state.templates.season] as DbTemplate[];
 };
 
 export const selectActiveTemplate = (state: RootState) => {
   if (!state.templates.active) {
     return null;
   }
-  const newTemplate = new Template();
-  newTemplate.importFromDatabase(state.templates.active);
-  return newTemplate;
+
+  return importFromDatabase(state.templates.active);
 };

@@ -1,15 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from './store';
-
-export interface TeamInfo {
-  mappingCode: number | null;
-  name: string;
-  teamNum: number;
-}
+import type { Team } from '../../domain/teams';
 
 // Define state for templates
 export interface TeamState {
-  teams: TeamInfo[] | null;
+  teams: Team[] | null;
 }
 
 export interface SwapPayload {
@@ -33,14 +28,14 @@ export const teamSlice = createSlice({
   reducers: {
     initTeams: (state, action: PayloadAction<number>) => {
       state.teams = [...Array(action.payload)].map(
-        (_, i): TeamInfo => ({
+        (_, i): Team => ({
           mappingCode: null,
-          name: `Team ${i + 1}`,
-          teamNum: i + 1,
+          teamName: `Team ${i + 1}`,
+          teamNumber: i + 1,
         })
       );
     },
-    replaceTeams: (state, action: PayloadAction<TeamInfo[] | null>) => {
+    replaceTeams: (state, action: PayloadAction<Team[] | null>) => {
       if (action.payload) {
         state.teams = action.payload;
       }
@@ -48,24 +43,28 @@ export const teamSlice = createSlice({
     swapTeamNum: (state, action: PayloadAction<SwapPayload>) => {
       const { teams } = state;
       if (teams) {
-        const oldInd = teams.findIndex((t) => t.teamNum === action.payload.old);
-        const newInd = teams.findIndex((t) => t.teamNum === action.payload.new);
+        const oldInd = teams.findIndex(
+          (t) => t.teamNumber === action.payload.old
+        );
+        const newInd = teams.findIndex(
+          (t) => t.teamNumber === action.payload.new
+        );
         if (oldInd >= 0 && newInd >= 0) {
-          [teams[oldInd].teamNum, teams[newInd].teamNum] = [
-            teams[newInd].teamNum,
-            teams[oldInd].teamNum,
+          [teams[oldInd].teamNumber, teams[newInd].teamNumber] = [
+            teams[newInd].teamNumber,
+            teams[oldInd].teamNumber,
           ];
-          state.teams = teams.sort((a, b) => a.teamNum - b.teamNum);
+          state.teams = teams.sort((a, b) => a.teamNumber - b.teamNumber);
         }
       }
     },
-    updateTeam: (state, action: PayloadAction<TeamInfo>) => {
+    updateTeam: (state, action: PayloadAction<Team>) => {
       if (!state.teams) {
         state.teams = [action.payload];
         return;
       }
       const index = state.teams.findIndex(
-        (t) => t.teamNum === action.payload.teamNum
+        (t) => t.teamNumber === action.payload.teamNumber
       );
 
       if (index >= 0) {
@@ -79,6 +78,6 @@ export const { initTeams, replaceTeams, swapTeamNum, updateTeam } =
   teamSlice.actions;
 export default teamSlice.reducer;
 
-export const selectTeams = (state: RootState): TeamInfo[] | null => {
+export const selectTeams = (state: RootState): Team[] | null => {
   return state.teams.teams;
 };

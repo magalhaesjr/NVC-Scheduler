@@ -1,25 +1,22 @@
 /* eslint-disable no-underscore-dangle */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import dayjs, { Dayjs } from 'dayjs';
-import { Template, Week } from '../template';
+import { Week } from '../../domain/schedule';
 import type { RootState } from './store';
-import { selectActiveTemplate } from './template';
 
-export interface LeagueNight {
-  week: number;
-  blackout: boolean;
-  date?: Dayjs;
-}
+export type LeagueNight = Week<Dayjs>;
 
 // Define state for templates
 export interface ScheduleState {
   startDate: string;
+  startCourt: number;
   schedule: LeagueNight[];
 }
 
 // Define initial state
 const initialState: ScheduleState = {
   startDate: dayjs().toJSON(),
+  startCourt: 1,
   schedule: [{ week: 0, blackout: false }],
 };
 
@@ -40,8 +37,11 @@ export const scheduleSlice = createSlice({
 
       if (index >= 0) {
         // Add the new blackout
-        schedule.splice(index, 0, { week: 0, blackout: true });
-
+        schedule.splice(index, 0, {
+          week: 0,
+          blackout: true,
+          message: 'Blackout',
+        });
         state.schedule = reNumberWeeks(schedule);
       }
     },
@@ -66,6 +66,9 @@ export default scheduleSlice.reducer;
 export const selectStartDate = (state: RootState): Dayjs =>
   dayjs(state.schedule.startDate);
 
+export const selectStartCourt = (state: RootState): number =>
+  state.schedule.startCourt;
+
 export const selectSchedule = (state: RootState): LeagueNight[] => {
   const schedule = [...state.schedule.schedule];
   const startDate = dayjs(state.schedule.startDate);
@@ -77,6 +80,7 @@ export const selectSchedule = (state: RootState): LeagueNight[] => {
   });
 };
 
+/*
 export const selectFinalSchedule = (state: RootState): Template | null => {
   // Pull template
   const finalSchedule = selectActiveTemplate(state);
@@ -87,7 +91,7 @@ export const selectFinalSchedule = (state: RootState): Template | null => {
 
   // Pull schedule
   const schedule = selectSchedule(state);
-  
+
   const oldSched = [...finalSchedule._schedule.week];
 
   // Rebuild schedule in the template itself
@@ -102,3 +106,4 @@ export const selectFinalSchedule = (state: RootState): Template | null => {
   finalSchedule._schedule.week = oldSched;
   return finalSchedule;
 };
+*/

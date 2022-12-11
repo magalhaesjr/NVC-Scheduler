@@ -17,12 +17,13 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import { isEqual } from 'lodash';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { selectTeams, TeamInfo, swapTeamNum } from '../redux/teams';
+import { selectTeams, swapTeamNum } from '../redux/teams';
+import { Team } from '../../domain/teams';
 import { LeagueNight, selectSchedule } from '../redux/schedule';
 // import TriStateButton from './tri-state-button';
 
 type TeamProps = {
-  team: TeamInfo;
+  team: Team;
 };
 
 // Manual Selection
@@ -38,28 +39,28 @@ const ManualRow = ({ team }: TeamProps) => {
     [dispatch]
   );
 
-  const baseKey = `team-${team.name}`;
+  const baseKey = `team-${team.teamName}`;
 
   return (
     <TableRow key={`${baseKey}/row`}>
       <TableCell key={`${baseKey}/number`}>
         <Select
           key={`${baseKey}/select`}
-          value={`${team.teamNum}`}
+          value={`${team.teamNumber}`}
           onChange={(e) =>
-            handleChange(team.teamNum, parseInt(e.target.value, 10))
+            handleChange(team.teamNumber, parseInt(e.target.value, 10))
           }
         >
           {teams &&
             teams.map((t) => (
               <MenuItem
-                key={`${baseKey}/select-${t.teamNum}`}
-                value={`${t.teamNum}`}
-              >{`${t.teamNum}`}</MenuItem>
+                key={`${baseKey}/select-${t.teamNumber}`}
+                value={`${t.teamNumber}`}
+              >{`${t.teamNumber}`}</MenuItem>
             ))}
         </Select>
       </TableCell>
-      <TableCell key={`${baseKey}/name`}>{team.name}</TableCell>
+      <TableCell key={`${baseKey}/name`}>{team.teamName}</TableCell>
     </TableRow>
   );
 };
@@ -72,7 +73,7 @@ const ManualTable = () => {
       <TableBody>
         {teams &&
           teams.map((t) => (
-            <ManualRow key={`team-row-${t.teamNum}`} team={t} />
+            <ManualRow key={`team-row-${t.teamNumber}`} team={t} />
           ))}
       </TableBody>
     </Table>
@@ -90,8 +91,12 @@ const AutoTable = () => {
           {teams &&
             teams.map((t) => (
               <TableRow>
-                <TableCell key={`team-${t.teamNum}/num`}>{t.teamNum}</TableCell>
-                <TableCell key={`team-${t.name}/name`}>{t.name}</TableCell>
+                <TableCell key={`team-${t.teamNumber}/num`}>
+                  {t.teamNumber}
+                </TableCell>
+                <TableCell key={`team-${t.teamName}/name`}>
+                  {t.teamName}
+                </TableCell>
               </TableRow>
             ))}
         </TableBody>

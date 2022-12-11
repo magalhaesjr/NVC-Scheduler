@@ -11,8 +11,8 @@ const fetchTeams = async () => {
   return teamSheets
     .filter((s: any) => s['Page Type'] === 'Team')
     .map((s: any, ind: number) => ({
-      name: s['Page Title'],
-      teamNum: ind + 1,
+      teamName: s['Page Title'],
+      teamNumber: ind + 1,
       mappingCode: s['Mapping Code'],
     }));
 };

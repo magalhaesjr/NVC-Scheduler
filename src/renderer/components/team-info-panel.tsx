@@ -11,16 +11,17 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import { isEqual } from 'lodash';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { importTeams, selectTeams, TeamInfo, updateTeam } from '../redux/teams';
+import { importTeams, selectTeams, updateTeam } from '../redux/teams';
+import { Team } from '../../domain/teams';
 
 type TeamProps = {
-  team: TeamInfo;
+  team: Team;
 };
 
 // Blackout row
 const TeamRow = ({ team }: TeamProps) => {
   const dispatch = useAppDispatch();
-  const [teamTemp, setTemp] = useState<TeamInfo>(team);
+  const [teamTemp, setTemp] = useState<Team>(team);
 
   useEffect(() => {
     setTemp(team);
@@ -37,14 +38,14 @@ const TeamRow = ({ team }: TeamProps) => {
     [setTemp]
   );
 
-  const baseKey = `team-${team.name}`;
+  const baseKey = `team-${team.teamName}`;
 
   return (
     <TableRow key={`${baseKey}/row`}>
       <TableCell key={`${baseKey}/name`}>
         <ClickAwayListener onClickAway={handleCommit}>
           <TextField
-            value={teamTemp.name}
+            value={teamTemp.teamName}
             onChange={(e) =>
               handleChange({ ...teamTemp, name: e.target.value })
             }
@@ -100,7 +101,7 @@ const TeamInfoPanel = () => {
           <TableBody>
             {teams &&
               teams.map((t) => (
-                <TeamRow key={`team-row-${t.teamNum}`} team={t} />
+                <TeamRow key={`team-row-${t.teamNumber}`} team={t} />
               ))}
           </TableBody>
         </Table>
