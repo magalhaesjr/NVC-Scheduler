@@ -15,6 +15,7 @@ import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
+import Tooltip from '@mui/material/Tooltip';
 import { isEqual } from 'lodash';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { selectTeams, swapTeamNum } from '../redux/teams';
@@ -135,18 +136,23 @@ const TeamNumberPanel = () => {
         <FormControl variant="outlined">
           <FormHelperText>Assignment Mode</FormHelperText>
           <RadioGroup value={mode} onChange={(e) => setMode(e.target.value)}>
-            <FormControlLabel
-              value="manual"
-              control={<Radio />}
-              label="Manual"
-              sx={{ color: 'black' }}
-            />
-            <FormControlLabel
-              value="auto"
-              control={<Radio />}
-              label="Auto"
-              sx={{ color: 'black' }}
-            />
+            <Tooltip title="Manually assign team numbers">
+              <FormControlLabel
+                value="manual"
+                control={<Radio />}
+                label="Manual"
+                sx={{ color: 'black' }}
+              />
+            </Tooltip>
+            <Tooltip title="Calculate optimal team numbers">
+              <FormControlLabel
+                value="auto"
+                disabled
+                control={<Radio />}
+                label="Auto"
+                sx={{ color: 'black' }}
+              />
+            </Tooltip>
           </RadioGroup>
         </FormControl>
         {mode === 'manual' ? <ManualTable /> : <AutoTable />}

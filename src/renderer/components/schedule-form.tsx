@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button, Step, StepButton, Stepper } from '@mui/material';
 import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import isEqual from 'lodash/isEqual';
 import { useAppSelector } from '../redux/hooks';
@@ -69,6 +70,12 @@ const ScheduleForm = () => {
     handleStep(Math.min(step + 1));
   };
 
+  // Button tooltip
+  const tooltip =
+    step === steps.length - 1
+      ? 'Export SportsEngine schedule'
+      : 'Continue to the next step';
+
   return (
     <form id="scheduleForm">
       <Box width="100%" height="100%">
@@ -88,9 +95,11 @@ const ScheduleForm = () => {
         </Stepper>
       </Box>
       <Box width="100%">
-        <Button onClick={nextStep}>
-          {step === steps.length - 1 ? 'Finish' : 'Next'}
-        </Button>
+        <Tooltip title={tooltip}>
+          <Button onClick={nextStep}>
+            {step === steps.length - 1 ? 'Finish' : 'Next'}
+          </Button>
+        </Tooltip>
       </Box>
       <Box width="100%">
         <Typography variant="h4" align="center" color="black">

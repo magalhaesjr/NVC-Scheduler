@@ -9,6 +9,7 @@ import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
+import Tooltip from '@mui/material/Tooltip';
 import { isEqual } from 'lodash';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { importTeams, selectTeams, updateTeam } from '../redux/teams';
@@ -78,9 +79,11 @@ const TeamInfoPanel = () => {
   return (
     <>
       <Box height="300px" width="100%">
-        <Button variant="contained" onClick={handleImport}>
-          Import CSV
-        </Button>
+        <Tooltip title="Import mapping codes and team names from SportsEngine exported csv file">
+          <Button variant="contained" onClick={handleImport}>
+            Import CSV
+          </Button>
+        </Tooltip>
         <Table stickyHeader key="team-table">
           <TableHead key="team-table-header">
             <TableRow key="team-table-header-row">

@@ -9,6 +9,7 @@ import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
+import Tooltip from '@mui/material/Tooltip';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { isEqual } from 'lodash';
 import {
@@ -35,6 +36,10 @@ const LeagueWeek = ({ week }: NightProps) => {
     }
   };
 
+  const tooltip = week.blackout
+    ? 'Remove blackout'
+    : 'Make this week a blackout';
+
   const baseKey = `week-${week.date.toJSON()}`;
   return (
     <TableRow
@@ -51,22 +56,24 @@ const LeagueWeek = ({ week }: NightProps) => {
           backgroundColor: week.blackout ? 'black' : 'auto',
         }}
       >
-        {week.blackout ? (
-          <Button
-            variant="contained"
-            onClick={() => handleBlackout(week.week, week.blackout)}
-            sx={{ backgroundColor: 'red' }}
-          >
-            remove
-          </Button>
-        ) : (
-          <Button
-            variant="contained"
-            onClick={() => handleBlackout(week.week, week.blackout)}
-          >
-            add
-          </Button>
-        )}
+        <Tooltip title={tooltip}>
+          {week.blackout ? (
+            <Button
+              variant="contained"
+              onClick={() => handleBlackout(week.week, week.blackout)}
+              sx={{ backgroundColor: 'red' }}
+            >
+              remove
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              onClick={() => handleBlackout(week.week, week.blackout)}
+            >
+              add
+            </Button>
+          )}
+        </Tooltip>
       </TableCell>
       <TableCell
         key={`${baseKey}/week`}

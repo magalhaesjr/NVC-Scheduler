@@ -8,6 +8,7 @@ import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
+import Tooltip from '@mui/material/Tooltip';
 import InputLabel from '@mui/material/InputLabel';
 import { isEqual } from 'lodash';
 import { DbTemplate } from '../../domain/template';
@@ -119,13 +120,15 @@ const TemplatePanel = () => {
       {availableTeams && (
         <Box width="100%" height="100%" overflow="auto">
           <InputLabel>Teams</InputLabel>
-          <Select value={`${teams}`} label="Teams" onChange={handleChange}>
-            {availableTeams.map((num) => (
-              <MenuItem key={`team-filter-${num}`} value={num}>
-                {num}
-              </MenuItem>
-            ))}
-          </Select>
+          <Tooltip title="Filter templates by number of teams">
+            <Select value={`${teams}`} label="Teams" onChange={handleChange}>
+              {availableTeams.map((num) => (
+                <MenuItem key={`team-filter-${num}`} value={num}>
+                  {num}
+                </MenuItem>
+              ))}
+            </Select>
+          </Tooltip>
           {filteredTemplates && (
             <Table stickyHeader>
               <Header />
