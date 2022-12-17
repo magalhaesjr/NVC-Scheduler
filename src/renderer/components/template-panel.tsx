@@ -116,30 +116,43 @@ const TemplatePanel = () => {
   }, [setTemplates, teams, templates]);
 
   return (
-    <Box width="100%" height="500px" overflow="auto">
+    <Box
+      width="100%"
+      height="100%"
+      alignItems="center"
+      display="flex"
+      flexDirection="column"
+    >
       {availableTeams && (
-        <Box width="100%" height="100%" overflow="auto">
-          <InputLabel>Teams</InputLabel>
-          <Tooltip title="Filter templates by number of teams">
-            <Select value={`${teams}`} label="Teams" onChange={handleChange}>
-              {availableTeams.map((num) => (
-                <MenuItem key={`team-filter-${num}`} value={num}>
-                  {num}
-                </MenuItem>
-              ))}
-            </Select>
-          </Tooltip>
-          {filteredTemplates && (
-            <Table stickyHeader>
-              <Header />
-              <TableBody>
-                {filteredTemplates.map((t: DbTemplate) => (
-                  <TeamRow key={`${t.id}-row`} template={t} />
+        <>
+          <Box alignItems="center" display="flex" flexDirection="column">
+            <InputLabel>Teams</InputLabel>
+            <Tooltip
+              title="Filter templates by number of teams"
+              placement="top"
+            >
+              <Select value={`${teams}`} label="Teams" onChange={handleChange}>
+                {availableTeams.map((num) => (
+                  <MenuItem key={`team-filter-${num}`} value={num}>
+                    {num}
+                  </MenuItem>
                 ))}
-              </TableBody>
-            </Table>
-          )}
-        </Box>
+              </Select>
+            </Tooltip>
+          </Box>
+          <Box width="100%" maxHeight="500px" minHeight="0" overflow="auto">
+            {filteredTemplates && (
+              <Table stickyHeader>
+                <Header />
+                <TableBody>
+                  {filteredTemplates.map((t: DbTemplate) => (
+                    <TeamRow key={`${t.id}-row`} template={t} />
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </Box>
+        </>
       )}
     </Box>
   );

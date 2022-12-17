@@ -124,7 +124,13 @@ const DatePanel = () => {
   );
 
   return (
-    <>
+    <Box
+      width="100%"
+      height="100%"
+      alignItems="center"
+      display="flex"
+      flexDirection="column"
+    >
       <DesktopDatePicker
         label="Start Date"
         inputFormat="MM/DD/YYYY"
@@ -132,7 +138,7 @@ const DatePanel = () => {
         onChange={changeDate}
         renderInput={(params) => <TextField {...params} />}
       />
-      <Box height="300px" width="100%">
+      <Box maxHeight="500px" width="100%" overflow="auto">
         <Table stickyHeader key="schedule-table">
           <TableHead key="schedule-table-header">
             <TableRow key="schedule-table-header-row">
@@ -163,7 +169,7 @@ const DatePanel = () => {
           </TableBody>
         </Table>
       </Box>
-    </>
+    </Box>
   );
 };
 

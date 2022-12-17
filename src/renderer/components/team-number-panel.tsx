@@ -131,8 +131,14 @@ const TeamNumberPanel = () => {
   const [mode, setMode] = useState<string>('manual');
 
   return (
-    <>
-      <Box height="300px" width="100%">
+    <Box
+      height="100%"
+      width="100%"
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+    >
+      <Box height="fit-content" width="fit-content" alignItems="center">
         <FormControl variant="outlined">
           <FormHelperText>Assignment Mode</FormHelperText>
           <RadioGroup value={mode} onChange={(e) => setMode(e.target.value)}>
@@ -155,9 +161,11 @@ const TeamNumberPanel = () => {
             </Tooltip>
           </RadioGroup>
         </FormControl>
+      </Box>
+      <Box maxHeight="500px" width="100%" overflow="auto">
         {mode === 'manual' ? <ManualTable /> : <AutoTable />}
       </Box>
-    </>
+    </Box>
   );
 };
 

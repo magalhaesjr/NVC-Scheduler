@@ -77,8 +77,22 @@ const ScheduleForm = () => {
       : 'Continue to the next step';
 
   return (
-    <form id="scheduleForm">
-      <Box width="100%" height="100%">
+    <Box
+      width="100%"
+      height="100%"
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        verticalAlign: 'top',
+        justifyContent: 'center',
+        padding: 0,
+      }}
+    >
+      <Box
+        width="100%"
+        display="flex"
+        sx={{ paddingBottom: '30px', verticalAlign: 'top' }}
+      >
         <Stepper
           activeStep={step}
           alternativeLabel
@@ -87,27 +101,38 @@ const ScheduleForm = () => {
         >
           {steps.map((panel, index) => (
             <Step key={panel.label}>
-              <StepButton onClick={() => handleStep(index)}>
+              <StepButton
+                onClick={() => handleStep(index)}
+                sx={{
+                  width: '100%',
+                  '&.MuiStepButton-root': {
+                    paddingLeft: '0px',
+                    paddingRight: '0px',
+                    marginLeft: '0px',
+                    marginRight: '0px',
+                  },
+                }}
+              >
                 {panel.label}
               </StepButton>
             </Step>
           ))}
         </Stepper>
       </Box>
-      <Box width="100%">
+      <Box width="100%" justifyContent="center" display="flex">
         <Tooltip title={tooltip}>
           <Button onClick={nextStep}>
             {step === steps.length - 1 ? 'Finish' : 'Next'}
           </Button>
         </Tooltip>
       </Box>
-      <Box width="100%">
+      <Box width="100%" justifyContent="center" display="flex">
         <Typography variant="h4" align="center" color="black">
           {steps[step].label}
         </Typography>
       </Box>
       {steps[step].panel}
-    </form>
+    </Box>
   );
 };
 

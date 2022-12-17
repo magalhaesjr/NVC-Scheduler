@@ -128,7 +128,7 @@ const FinalPreview = () => {
 
   return (
     <>
-      <Box height="300px" width="100%">
+      <Box maxHeight="550px" width="100%" overflow="auto">
         <Table stickyHeader key="schedule-table">
           <TableHead key="schedule-table-header">
             <TableRow key="schedule-table-header-row">

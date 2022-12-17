@@ -77,13 +77,32 @@ const TeamInfoPanel = () => {
   }, [dispatch]);
 
   return (
-    <>
-      <Box height="300px" width="100%">
+    <Box
+      width="100%"
+      height="100%"
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+    >
+      <Box
+        height="fit-content"
+        width="fit-content"
+        display="flex"
+        alignItems="center"
+      >
         <Tooltip title="Import mapping codes and team names from SportsEngine exported csv file">
           <Button variant="contained" onClick={handleImport}>
             Import CSV
           </Button>
         </Tooltip>
+      </Box>
+      <Box
+        maxHeight="500px"
+        width="100%"
+        display="flex"
+        alignContent="center"
+        overflow="auto"
+      >
         <Table stickyHeader key="team-table">
           <TableHead key="team-table-header">
             <TableRow key="team-table-header-row">
@@ -109,7 +128,7 @@ const TeamInfoPanel = () => {
           </TableBody>
         </Table>
       </Box>
-    </>
+    </Box>
   );
 };
 
