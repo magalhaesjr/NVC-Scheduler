@@ -79,10 +79,18 @@ const TeamRow = ({ template }: RowProps) => {
         </Button>
       </TableCell>
       <TableCell key={`${id}-title`}>{title}</TableCell>
-      <TableCell key={`${id}-teams`}>{numTeams}</TableCell>
-      <TableCell key={`${id}-weeks`}>{numWeeks}</TableCell>
-      <TableCell key={`${id}-courts`}>{numCourts}</TableCell>
-      <TableCell key={`${id}-byes`}>{numByes}</TableCell>
+      <TableCell key={`${id}-teams`} align="center">
+        {numTeams}
+      </TableCell>
+      <TableCell key={`${id}-weeks`} align="center">
+        {numWeeks}
+      </TableCell>
+      <TableCell key={`${id}-courts`} align="center">
+        {numCourts}
+      </TableCell>
+      <TableCell key={`${id}-byes`} align="center">
+        {numByes}
+      </TableCell>
       <TableCell key={`${id}-desc`}>{description}</TableCell>
     </TableRow>
   );

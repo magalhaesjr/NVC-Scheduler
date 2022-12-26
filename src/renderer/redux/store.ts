@@ -4,12 +4,14 @@ import createSagaMiddleware from 'redux-saga';
 import templateReducer from './template';
 import scheduleReducer from './schedule';
 import teamReducer from './teams';
+import previewReducer from './preview';
 import rootSaga from './root-saga';
 
 const sagaMiddleware = createSagaMiddleware();
 
 export const store = configureStore({
   reducer: {
+    previews: previewReducer,
     teams: teamReducer,
     templates: templateReducer,
     schedule: scheduleReducer,

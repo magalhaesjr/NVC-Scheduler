@@ -10,6 +10,7 @@ import { setSchedule } from '../../schedule';
 import { initTeams } from '../../teams';
 import { DbTemplate } from '../../../../domain/template';
 import { Week } from '../../../../domain/schedule';
+import { generatePreviews } from '../../preview';
 
 export function* handleLoadTemplates() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -30,5 +31,8 @@ export function* handleUpdateActive(action: { id: string }) {
     );
     // Initialize empty teams
     yield put(initTeams(active.numTeams));
+
+    // Create all of the team previews
+    yield put(generatePreviews());
   }
 }

@@ -79,31 +79,3 @@ export const selectSchedule = (state: RootState): LeagueNight[] => {
     };
   });
 };
-
-/*
-export const selectFinalSchedule = (state: RootState): Template | null => {
-  // Pull template
-  const finalSchedule = selectActiveTemplate(state);
-
-  if (!finalSchedule) {
-    return null;
-  }
-
-  // Pull schedule
-  const schedule = selectSchedule(state);
-
-  const oldSched = [...finalSchedule._schedule.week];
-
-  // Rebuild schedule in the template itself
-  schedule.forEach((w, ind) => {
-    if (!w.blackout && w.date) {
-      oldSched[ind] = {
-        ...oldSched[ind],
-        date: w.date.toJSON(),
-      };
-    }
-  });
-  finalSchedule._schedule.week = oldSched;
-  return finalSchedule;
-};
-*/

@@ -120,18 +120,18 @@ const ScheduleForm = () => {
         </Stepper>
       </Box>
       <Box width="100%" justifyContent="center" display="flex">
-        <Tooltip title={tooltip}>
-          <Button onClick={nextStep}>
-            {step === steps.length - 1 ? 'Finish' : 'Next'}
-          </Button>
-        </Tooltip>
-      </Box>
-      <Box width="100%" justifyContent="center" display="flex">
         <Typography variant="h4" align="center" color="black">
           {steps[step].label}
         </Typography>
       </Box>
       {steps[step].panel}
+      <Box width="100%" justifyContent="center" display="flex">
+        <Tooltip title={tooltip}>
+          <Button onClick={nextStep} variant="contained" color="secondary">
+            {step === steps.length - 1 ? 'Finish' : 'Next'}
+          </Button>
+        </Tooltip>
+      </Box>
     </Box>
   );
 };

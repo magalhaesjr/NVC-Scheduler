@@ -74,6 +74,7 @@ const LeagueWeek = ({ teams, week }: NightProps) => {
     >
       <TableCell
         key={`${baseKey}/week`}
+        align="center"
         sx={{
           color: week.blackout ? 'white' : 'black',
           backgroundColor: week.blackout ? 'black' : 'auto',

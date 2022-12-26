@@ -28,7 +28,6 @@ const OutDrawer = ({ width }: DrawerProps) => {
       PaperProps={{
         sx: {
           backgroundColor: theme.palette.primary.main,
-          color: 'rgba(225,249,27,1)',
           display: 'flex',
           width,
         },
