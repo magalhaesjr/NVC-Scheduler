@@ -38,7 +38,7 @@ const OutDrawer = ({ width }: DrawerProps) => {
           <ListItemIcon>
             <AppsIcon />
           </ListItemIcon>
-          <ListItemText primary="Home" />
+          <ListItemText primary="Home" sx={{ color: 'white' }} />
         </ListItem>
       </List>
     </Drawer>

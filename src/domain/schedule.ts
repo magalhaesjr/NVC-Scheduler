@@ -79,6 +79,12 @@ const outputSchedule = async (
   schedule.forEach((week) => {
     const date = week.date.format('MM/DD/YYYY');
     const msg = week.message || '';
+
+    // Blackouts not included
+    if (week.blackout) {
+      return;
+    }
+
     // Loop through each schedule time
     week.timeSlot.forEach((slot, w) => {
       // Create an entry for each match in the time slot

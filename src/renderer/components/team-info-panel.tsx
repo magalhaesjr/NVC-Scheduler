@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
@@ -23,9 +23,11 @@ type TeamProps = {
 const TeamRow = ({ team }: TeamProps) => {
   const dispatch = useAppDispatch();
   const [teamTemp, setTemp] = useState<Team>(team);
+  const tempRef = useRef<Team>(team);
 
   useEffect(() => {
     setTemp(team);
+    tempRef.current = team;
   }, [setTemp, team]);
 
   const handleCommit = useCallback(() => {
@@ -35,9 +37,16 @@ const TeamRow = ({ team }: TeamProps) => {
   const handleChange = useCallback(
     (t) => {
       setTemp(t);
+      tempRef.current = t;
     },
     [setTemp]
   );
+
+  useEffect(() => {
+    return () => {
+      dispatch(updateTeam(tempRef.current));
+    };
+  }, [dispatch]);
 
   const baseKey = `team-${team.teamName}`;
 

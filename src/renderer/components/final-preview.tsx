@@ -28,14 +28,13 @@ interface ByeTeams {
 const getByeTeams = (week: Required<LeagueNight>, teams: Team[]): ByeTeams => {
   const byes: ByeWeek = {};
 
-  if (teams.length === 0) {
+  if (teams.length === 0 || week.blackout) {
     return { full: [], partial: [] };
   }
 
   teams.forEach((t) => {
     byes[t.teamName] = 0;
   });
-
   week.timeSlot.forEach((slot: TimeSlot) => {
     if (slot.byeTeams.length > 0) {
       slot.byeTeams.forEach((t) => {
@@ -93,6 +92,7 @@ const LeagueWeek = ({ teams, week }: NightProps) => {
       </TableCell>
       <TableCell
         key={`${baseKey}/msg`}
+        align="center"
         sx={{
           color: week.blackout ? 'white' : 'black',
           backgroundColor: week.blackout ? 'black' : 'auto',
