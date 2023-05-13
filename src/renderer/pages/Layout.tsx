@@ -1,6 +1,6 @@
 // Creates main layout of app
 import { ReactNode } from 'react';
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 // components of webpage
 import OutDrawer from './Drawer';
 
@@ -14,31 +14,37 @@ type Props = {
 // place it in the main tag within this component
 // eslint-disable-next-line react/prop-types
 const Layout: React.FC<Props> = ({ children }) => {
+  const theme = useTheme();
+
   return (
-    <Box
-      sx={{
-        flexDirection: 'column',
-        display: 'block',
-        overflow: 'auto',
-      }}
-    >
-      <Box>
-        <OutDrawer />
+    <>
+      <Box
+        sx={{
+          flexDirection: 'row',
+          display: 'flex',
+          width: '100%',
+          height: '100%',
+        }}
+      >
+        <OutDrawer width={theme.layout.drawerWidth} />
         <Box
           component="main"
           sx={{
             flexGrow: 1,
             flex: 1,
-            marginLeft: '180px',
-            width: 'auto',
-            p: 3,
-            overflow: 'auto',
+            margin: 0,
+            paddingTop: theme.layout.horzPadding,
+            paddingLeft: 0,
+            paddingRight: 0,
+            display: 'flex',
+            minHeight: 0,
+            maxHeight: '100%',
           }}
         >
           {children}
         </Box>
       </Box>
-    </Box>
+    </>
   );
 };
 
