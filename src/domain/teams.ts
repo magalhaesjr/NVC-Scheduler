@@ -5,6 +5,7 @@ export interface Team {
   mappingCode: number | null;
 }
 
+/*
 interface TeamPreview {
   team: Team;
   byeWeeks: string[];
@@ -16,6 +17,7 @@ interface TeamPreview {
   byeRequest: string[] | null;
   opponents: number[];
 }
+*/
 
 interface TeamValidation {
   valid: boolean;
