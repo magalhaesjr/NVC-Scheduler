@@ -17,7 +17,7 @@ const saveSchedule = (_, channel, msg) => {
   });
 
   if (typeof filename === 'undefined') {
-    return;
+    return false;
   }
   // Write all of the data at once
   fs.writeFile(filename, outputData, (err) => {
@@ -43,6 +43,7 @@ const saveSchedule = (_, channel, msg) => {
       console.log("It's saved!");
     }
   });
+  return true;
 };
 
 export default saveSchedule;

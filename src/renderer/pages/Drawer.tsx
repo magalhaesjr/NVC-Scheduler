@@ -7,8 +7,12 @@ import AppsIcon from '@mui/icons-material/Apps';
 import List from '@mui/material/List';
 import { useTheme } from '@mui/material';
 
+export interface DrawerProps {
+  width: string;
+}
+
 // Output Drawer
-const OutDrawer = () => {
+const OutDrawer = ({ width }: DrawerProps) => {
   const theme = useTheme();
 
   return (
@@ -16,30 +20,27 @@ const OutDrawer = () => {
       variant="permanent"
       sx={{
         position: 'relative',
-        width: '180px',
         flexShrink: 0,
-        display: 'block',
+        display: 'flex',
         anchor: 'left',
+        width,
       }}
       PaperProps={{
         sx: {
           backgroundColor: theme.palette.primary.main,
-          color: 'rgba(225,249,27,1)',
-          width: '180px',
-          display: 'block',
+          display: 'flex',
+          width,
         },
       }}
     >
-      <div>
-        <List>
-          <ListItem button component={Link} to="/">
-            <ListItemIcon>
-              <AppsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Home" />
-          </ListItem>
-        </List>
-      </div>
+      <List>
+        <ListItem component={Link} to="/">
+          <ListItemIcon>
+            <AppsIcon />
+          </ListItemIcon>
+          <ListItemText primary="Home" sx={{ color: 'white' }} />
+        </ListItem>
+      </List>
     </Drawer>
   );
 };
