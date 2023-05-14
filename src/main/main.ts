@@ -35,13 +35,9 @@ let previewWin: BrowserWindow | null = null;
 let templateFile: string;
 
 if (process.env.NODE_ENV === 'production') {
-  templateFile = path.join(
-    process.resourcesPath,
-    'extraResources',
-    'Templates.json'
-  );
+  templateFile = path.join(process.resourcesPath, 'assets', 'Templates.json');
 } else {
-  templateFile = path.join(__dirname, '../../extraResources', 'Templates.json');
+  templateFile = path.join(__dirname, '../../assets', 'Templates.json');
 }
 
 if (process.env.NODE_ENV === 'production') {
