@@ -1,6 +1,6 @@
 {
   "name": "nvc-scheduler",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "An app for creating schedules for Newport Volleyball Club",
   "main": "./dist/main/main.js",
   "author": {
@@ -12,5 +12,8 @@
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts",
     "postinstall": "npm run electron-rebuild && npm run link-modules"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
 }
