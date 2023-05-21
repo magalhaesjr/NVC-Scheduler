@@ -31,7 +31,42 @@ export interface Schedule {
   week: Week<string>[];
 }
 
+export type ByeDates = {
+  full: string[];
+  partial: string[];
+};
+
 /** Utility functions */
+
+// Get bye dates for a given team team number
+export const getByeDates = (
+  leagueNights: Week<Dayjs>[],
+  teamNumber: number
+) => {
+  const byeDates: ByeDates = {
+    full: [],
+    partial: [],
+  };
+
+  leagueNights.forEach((w) => {
+    if (w.timeSlot && w.date) {
+      let numByes = 0;
+      w.timeSlot.forEach((t) => {
+        if (t.byeTeams.includes(teamNumber)) {
+          numByes += 1;
+        }
+      });
+
+      if (numByes === w.timeSlot.length) {
+        byeDates.full.push(w.date.format('MM/DD/YYYY'));
+      } else if (numByes > 0) {
+        byeDates.partial.push(`[${numByes}] ${w.date.format('MM/DD/YYYY')}`);
+      }
+    }
+  });
+
+  return byeDates;
+};
 
 // Create sports engine .csv string
 export function getScheduleString(

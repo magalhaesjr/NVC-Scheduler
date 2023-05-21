@@ -17,6 +17,7 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import Tooltip from '@mui/material/Tooltip';
 import { isEqual } from 'lodash';
+import { ByeDates, getByeDates } from 'domain/schedule';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { selectTeams, swapTeamNum } from '../redux/teams';
 import { Team } from '../../domain/teams';
@@ -25,10 +26,11 @@ import { LeagueNight, selectSchedule } from '../redux/schedule';
 
 type TeamProps = {
   team: Team;
+  byeDates: ByeDates;
 };
 
 // Manual Selection
-const ManualRow = ({ team }: TeamProps) => {
+const ManualRow = ({ team, byeDates }: TeamProps) => {
   const dispatch = useAppDispatch();
 
   const teams = useAppSelector(selectTeams, isEqual);
@@ -62,19 +64,46 @@ const ManualRow = ({ team }: TeamProps) => {
         </Select>
       </TableCell>
       <TableCell key={`${baseKey}/name`}>{team.teamName}</TableCell>
+      <TableCell key={`${baseKey}/full-byes`}>
+        {byeDates.full.join(' , ')}
+      </TableCell>
+      <TableCell key={`${baseKey}/partial-byes`}>
+        {byeDates.partial.join(' , ')}
+      </TableCell>
     </TableRow>
   );
 };
 
 const ManualTable = () => {
   const teams = useAppSelector(selectTeams, isEqual);
+  const schedule = useAppSelector(selectSchedule, isEqual);
 
   return (
     <Table stickyHeader key="team-table">
+      <TableHead key="team-table-header">
+        <TableRow key="team-table-header-row">
+          <TableCell key="team-header-week" sx={{ fontSize: '18pt' }}>
+            Team #
+          </TableCell>
+          <TableCell key="team-header-date" sx={{ fontSize: '18pt' }}>
+            Name
+          </TableCell>
+          <TableCell key="team-header-full-bye" sx={{ fontSize: '18pt' }}>
+            Full Bye
+          </TableCell>
+          <TableCell key="schedule-header-part-bye" sx={{ fontSize: '18pt' }}>
+            Part Bye
+          </TableCell>
+        </TableRow>
+      </TableHead>
       <TableBody>
         {teams &&
           teams.map((t) => (
-            <ManualRow key={`team-row-${t.teamNumber}`} team={t} />
+            <ManualRow
+              key={`team-row-${t.teamNumber}`}
+              team={t}
+              byeDates={getByeDates(schedule, t.teamNumber)}
+            />
           ))}
       </TableBody>
     </Table>
