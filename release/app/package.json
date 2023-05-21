@@ -1,6 +1,6 @@
 {
   "name": "nvc-scheduler",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "An app for creating schedules for Newport Volleyball Club",
   "main": "./dist/main/main.js",
   "author": {
