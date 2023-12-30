@@ -128,49 +128,41 @@ const FinalPreview = () => {
   const teams = useAppSelector(selectTeams, isEqual);
 
   return (
-    <>
-      <Box maxHeight="550px" width="100%" overflow="auto">
-        <Table stickyHeader key="schedule-table">
-          <TableHead key="schedule-table-header">
-            <TableRow key="schedule-table-header-row">
-              <TableCell key="schedule-header-week" sx={{ fontSize: '18pt' }}>
-                Week
-              </TableCell>
-              <TableCell key="schedule-header-date" sx={{ fontSize: '18pt' }}>
-                Date
-              </TableCell>
-              <TableCell
-                key="schedule-header-msg"
-                sx={{ textAlign: 'center', fontSize: '18pt' }}
-              >
-                Message
-              </TableCell>
-              <TableCell
-                key="schedule-header-full-bye"
-                sx={{ fontSize: '18pt' }}
-              >
-                Full Bye
-              </TableCell>
-              <TableCell
-                key="schedule-header-part-bye"
-                sx={{ fontSize: '18pt' }}
-              >
-                Part Bye
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {schedule.map((w) => (
-              <LeagueWeek
-                key={`league-week-${w.week}`}
-                week={w as Required<LeagueNight>}
-                teams={teams || []}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </Box>
-    </>
+    <Box display="flex" flexGrow="1" width="100%" overflow="auto">
+      <Table stickyHeader key="schedule-table">
+        <TableHead key="schedule-table-header">
+          <TableRow key="schedule-table-header-row">
+            <TableCell key="schedule-header-week" sx={{ fontSize: '18pt' }}>
+              Week
+            </TableCell>
+            <TableCell key="schedule-header-date" sx={{ fontSize: '18pt' }}>
+              Date
+            </TableCell>
+            <TableCell
+              key="schedule-header-msg"
+              sx={{ textAlign: 'center', fontSize: '18pt' }}
+            >
+              Message
+            </TableCell>
+            <TableCell key="schedule-header-full-bye" sx={{ fontSize: '18pt' }}>
+              Full Bye
+            </TableCell>
+            <TableCell key="schedule-header-part-bye" sx={{ fontSize: '18pt' }}>
+              Part Bye
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {schedule.map((w) => (
+            <LeagueWeek
+              key={`league-week-${w.week}`}
+              week={w as Required<LeagueNight>}
+              teams={teams || []}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </Box>
   );
 };
 

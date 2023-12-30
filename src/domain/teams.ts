@@ -30,9 +30,6 @@ const validateTeams = (teams: Team[]): TeamValidation => {
     if (team.teamName.length === 0) {
       state.valid = false;
       state.message = `Team ${team.teamNumber} has an empty name`;
-    } else if (team.mappingCode === null) {
-      state.valid = false;
-      state.message = `Team ${team.teamNumber} has no mapping code`;
     }
   });
   return state;
