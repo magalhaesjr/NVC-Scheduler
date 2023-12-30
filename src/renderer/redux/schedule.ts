@@ -11,6 +11,7 @@ export interface ScheduleState {
   startDate: string;
   startCourt: number;
   schedule: LeagueNight[];
+  leagueName: string;
 }
 
 // Define initial state
@@ -18,6 +19,7 @@ const initialState: ScheduleState = {
   startDate: dayjs().toJSON(),
   startCourt: 1,
   schedule: [{ week: 0, blackout: false }],
+  leagueName: 'League',
 };
 
 const reNumberWeeks = (schedule: LeagueNight[]) => {
@@ -56,11 +58,19 @@ export const scheduleSlice = createSlice({
     setSchedule: (state, action: PayloadAction<LeagueNight[]>) => {
       state.schedule = action.payload;
     },
+    setLeagueName: (state, action: PayloadAction<string>) => {
+      state.leagueName = action.payload;
+    },
   },
 });
 
-export const { addBlackout, removeBlackout, setStartDate, setSchedule } =
-  scheduleSlice.actions;
+export const {
+  addBlackout,
+  removeBlackout,
+  setLeagueName,
+  setStartDate,
+  setSchedule,
+} = scheduleSlice.actions;
 export default scheduleSlice.reducer;
 
 export const selectStartDate = (state: RootState): Dayjs =>
@@ -79,3 +89,5 @@ export const selectSchedule = (state: RootState): LeagueNight[] => {
     };
   });
 };
+
+export const selectLeagueName = (state: RootState) => state.schedule.leagueName;

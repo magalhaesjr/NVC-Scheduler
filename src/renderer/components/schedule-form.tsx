@@ -7,6 +7,7 @@ import isEqual from 'lodash/isEqual';
 import { useAppSelector } from '../redux/hooks';
 import {
   LeagueNight,
+  selectLeagueName,
   selectSchedule,
   selectStartCourt,
 } from '../redux/schedule';
@@ -29,7 +30,7 @@ const steps = [
     panel: <DatePanel />,
   },
   {
-    label: 'Set Team Codes',
+    label: 'Set Team Names',
     panel: <TeamInfoPanel />,
   },
   {
@@ -48,6 +49,7 @@ const ScheduleForm = () => {
 
   /** Redux */
   const schedule = useAppSelector(selectSchedule, isEqual);
+  const leagueName = useAppSelector(selectLeagueName);
   const startCourt = useAppSelector(selectStartCourt);
   const teams = useAppSelector(selectTeams, isEqual);
 
@@ -56,7 +58,8 @@ const ScheduleForm = () => {
       const success = await outputSchedule(
         schedule as Required<LeagueNight>[],
         teams,
-        startCourt
+        startCourt,
+        leagueName
       );
       if (success) {
         setStep(0);
@@ -91,6 +94,7 @@ const ScheduleForm = () => {
       <Box
         width="100%"
         display="flex"
+        flexGrow="0"
         sx={{ paddingBottom: '30px', verticalAlign: 'top' }}
       >
         <Stepper
@@ -119,13 +123,13 @@ const ScheduleForm = () => {
           ))}
         </Stepper>
       </Box>
-      <Box width="100%" justifyContent="center" display="flex">
+      <Box width="100%" justifyContent="center" display="flex" flexGrow="0">
         <Typography variant="h4" align="center" color="black">
           {steps[step].label}
         </Typography>
       </Box>
       {steps[step].panel}
-      <Box width="100%" justifyContent="center" display="flex">
+      <Box width="100%" justifyContent="center" display="flex" flexGrow="0">
         <Tooltip title={tooltip}>
           <Button onClick={nextStep} variant="contained" color="secondary">
             {step === steps.length - 1 ? 'Finish' : 'Next'}

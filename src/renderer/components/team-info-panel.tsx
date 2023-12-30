@@ -1,19 +1,19 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-import Tooltip from '@mui/material/Tooltip';
 import { isEqual } from 'lodash';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { importTeams, selectTeams, updateTeam } from '../redux/teams';
+import { selectTeams, updateTeam } from '../redux/teams';
 import { Team } from '../../domain/teams';
+import { selectLeagueName, setLeagueName } from '../redux/schedule';
 
 type TeamProps = {
   team: Team;
@@ -51,24 +51,31 @@ const TeamRow = ({ team }: TeamProps) => {
   const baseKey = `team-${team.teamName}`;
 
   return (
-    <TableRow key={`${baseKey}/row`}>
-      <TableCell key={`${baseKey}/name`}>
+    <TableRow
+      key={`${baseKey}/row`}
+      sx={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
+      }}
+    >
+      <TableCell
+        key={`${baseKey}/name`}
+        sx={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          textAlign: 'center',
+        }}
+      >
         <ClickAwayListener onClickAway={handleCommit}>
           <TextField
             value={teamTemp.teamName}
             onChange={(e) =>
               handleChange({ ...teamTemp, name: e.target.value })
             }
-          />
-        </ClickAwayListener>
-      </TableCell>
-      <TableCell key={`${baseKey}/code`}>
-        <ClickAwayListener onClickAway={handleCommit}>
-          <TextField
-            value={teamTemp.mappingCode === null ? '' : teamTemp.mappingCode}
-            onChange={(e) =>
-              handleChange({ ...teamTemp, mappingCode: e.target.value })
-            }
+            sx={{
+              '.MuiInputBase-input': { textAlign: 'center' },
+            }}
           />
         </ClickAwayListener>
       </TableCell>
@@ -80,9 +87,26 @@ const TeamInfoPanel = () => {
   const dispatch = useAppDispatch();
   // Pull start date from redux state
   const teams = useAppSelector(selectTeams, isEqual);
+  const leagueName = useAppSelector(selectLeagueName);
+  const [tempLeague, setTempLeague] = useState<string>(leagueName);
+  const tempRef = useRef<string>(leagueName);
+  tempRef.current = tempLeague;
 
-  const handleImport = useCallback(() => {
-    dispatch(importTeams());
+  const handleCommit = useCallback(() => {
+    dispatch(setLeagueName(tempLeague));
+  }, [dispatch, tempLeague]);
+
+  const handleChange = useCallback(
+    (e) => {
+      setTempLeague(e.target.value);
+    },
+    [setTempLeague]
+  );
+
+  useEffect(() => {
+    return () => {
+      dispatch(setLeagueName(tempRef.current));
+    };
   }, [dispatch]);
 
   return (
@@ -92,24 +116,39 @@ const TeamInfoPanel = () => {
       display="flex"
       flexDirection="column"
       alignItems="center"
+      paddingTop="20px"
     >
       <Box
         height="fit-content"
         width="fit-content"
         display="flex"
+        flexDirection="row"
         alignItems="center"
       >
-        <Tooltip title="Import mapping codes and team names from SportsEngine exported csv file">
-          <Button variant="contained" onClick={handleImport}>
-            Import CSV
-          </Button>
-        </Tooltip>
+        <Typography
+          variant="h5"
+          textAlign="center"
+          color="#121212"
+          paddingRight="20px"
+        >
+          League Name:
+        </Typography>
+        <ClickAwayListener onClickAway={handleCommit}>
+          <TextField
+            value={tempLeague}
+            onChange={handleChange}
+            sx={{
+              '.MuiInputBase-input': { textAlign: 'center' },
+            }}
+          />
+        </ClickAwayListener>
       </Box>
       <Box
-        maxHeight="500px"
         width="100%"
+        flexGrow="1"
         display="flex"
-        alignContent="center"
+        alignItems="center"
+        justifyContent="center"
         overflow="auto"
       >
         <Table stickyHeader key="team-table">
@@ -120,12 +159,6 @@ const TeamInfoPanel = () => {
                 sx={{ fontSize: '18pt', textAlign: 'center' }}
               >
                 Name
-              </TableCell>
-              <TableCell
-                key="team-header-code"
-                sx={{ fontSize: '18pt', textAlign: 'center' }}
-              >
-                Mapping Code
               </TableCell>
             </TableRow>
           </TableHead>
