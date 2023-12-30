@@ -26,6 +26,7 @@ export interface Week<T> {
 
 // schedule classes
 export interface Schedule {
+  leagueName: string;
   teams: number[];
   numTimeSlots: number;
   week: Week<string>[];
@@ -69,7 +70,7 @@ export const getByeDates = (
 };
 
 // Create sports engine .csv string
-export function getScheduleString(
+export function getSportsEngineScheduleString(
   date: string,
   time: string,
   team1: number,
@@ -78,6 +79,17 @@ export function getScheduleString(
 ) {
   return `${date},${time},${date},${time},Game,${team1},1,${team2},Court ${court}`;
 }
+
+export function getSidelineScheduleString(
+  date: string,
+  time: string,
+  team1: string,
+  team2: string,
+  name: string
+) {
+  return `${date},${time},${name},${team1},${team2},,`;
+}
+
 // Create bye table
 export function getByeTableString(
   week: number,
@@ -90,8 +102,7 @@ export function getByeTableString(
 }
 
 /** Schedule functions */
-
-const outputSchedule = async (
+export const outputSportsEngineSchedule = async (
   schedule: Required<Week<Dayjs>>[],
   teams: Required<Team>[],
   startCourt: number
@@ -126,7 +137,7 @@ const outputSchedule = async (
       slot.match.forEach((match) => {
         outputData = outputData.concat(
           '\n',
-          getScheduleString(
+          getSportsEngineScheduleString(
             date,
             match.time,
             teams[match.team1 - 1].mappingCode as number,
@@ -161,4 +172,75 @@ const outputSchedule = async (
   }
 };
 
-export default outputSchedule;
+const outputSidelineSchedule = async (
+  schedule: Required<Week<Dayjs>>[],
+  teams: Required<Team>[],
+  startCourt: number,
+  leagueName: string
+): Promise<boolean> => {
+  // Validate teams
+  const teamState = validateTeams(teams);
+  if (!teamState.valid) {
+    console.error(teamState.message);
+    return false;
+  }
+
+  // Creates the sportsengine formatted schedule
+  let outputData =
+    'Date,Time,Schedule Name,Home Team Name,Away Team Name,' +
+    'Home Associated Org,Away Associated Org';
+  // bye table info
+  let byeData = 'Week,Date,Message,Bye,Time';
+
+  // Build the outputs from the finalized schedule
+  schedule.forEach((week) => {
+    const date = week.date.format('MM/DD/YYYY');
+    const msg = week.message || '';
+
+    // Blackouts not included
+    if (week.blackout) {
+      return;
+    }
+
+    // Loop through each schedule time
+    week.timeSlot.forEach((slot, w) => {
+      // Create an entry for each match in the time slot
+      slot.match.forEach((match) => {
+        outputData = outputData.concat(
+          '\n',
+          getSidelineScheduleString(
+            date,
+            match.time,
+            teams[match.team1 - 1].teamName,
+            teams[match.team2 - 1].teamName,
+            `${leagueName} Court ${startCourt + match.court - 1}`
+          )
+        );
+        // Create the bye entry
+        const byeTeams = slot.byeTeams
+          .map((t) => teams[t - 1].teamName)
+          .join(' ');
+        byeData = byeData.concat(
+          '\n',
+          getByeTableString(w + 1, date, msg, byeTeams, match.time)
+        );
+      });
+    });
+  });
+
+  // Create message
+  const outMsg = {
+    outputData,
+    byeData,
+  };
+  // Pass data to save
+  try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore preload defines api field
+    return window.api.saveSchedule('scheduler:saveSchedule', outMsg);
+  } catch (e) {
+    return false;
+  }
+};
+
+export default outputSidelineSchedule;

@@ -138,7 +138,7 @@ const DatePanel = () => {
         onChange={changeDate}
         renderInput={(params) => <TextField {...params} />}
       />
-      <Box maxHeight="500px" width="100%" overflow="auto">
+      <Box flexGrow="1" width="100%" overflow="auto">
         <Table stickyHeader key="schedule-table">
           <TableHead key="schedule-table-header">
             <TableRow key="schedule-table-header-row">

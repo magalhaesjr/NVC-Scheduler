@@ -191,7 +191,7 @@ const TeamNumberPanel = () => {
           </RadioGroup>
         </FormControl>
       </Box>
-      <Box maxHeight="500px" width="100%" overflow="auto">
+      <Box flexGrow="1" width="100%" overflow="auto">
         {mode === 'manual' ? <ManualTable /> : <AutoTable />}
       </Box>
     </Box>

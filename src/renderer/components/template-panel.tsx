@@ -148,7 +148,7 @@ const TemplatePanel = () => {
               </Select>
             </Tooltip>
           </Box>
-          <Box width="100%" maxHeight="500px" minHeight="0" overflow="auto">
+          <Box width="100%" flexGrow="1" minHeight="0" overflow="auto">
             {filteredTemplates && (
               <Table stickyHeader>
                 <Header />
