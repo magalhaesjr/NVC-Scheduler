@@ -1,8 +1,10 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { Season } from 'domain/template';
+import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('api', {
-  onStart: (callback: () => void) =>
-    ipcRenderer.on('start-template-schedule', callback),
+  onSeasonChange: (
+    callback: (event: IpcRendererEvent, season: Season) => void
+  ) => ipcRenderer.on('scheduler:changeSeason', callback),
   assignTeams: (costMatrix: number[]) =>
     ipcRenderer.invoke('scheduler:assignTeams', costMatrix),
   importTeamInfo: () => ipcRenderer.invoke('scheduler:importTeamInfo'),
