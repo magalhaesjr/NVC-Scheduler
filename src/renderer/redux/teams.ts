@@ -26,7 +26,12 @@ export const teamSlice = createSlice({
   name: 'teams',
   initialState,
   reducers: {
-    initTeams: (state, action: PayloadAction<number>) => {
+    initTeams: (state, action: PayloadAction<number | null>) => {
+      if (action.payload === null) {
+        state.teams = null;
+        return;
+      }
+
       state.teams = [...Array(action.payload)].map(
         (_, i): Team => ({
           mappingCode: null,

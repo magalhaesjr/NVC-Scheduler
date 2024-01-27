@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { DbTemplate, importFromDatabase } from '../../domain/template';
+import { DbTemplate, importFromDatabase, Season } from '../../domain/template';
 import type { RootState } from './store';
 
 /** Types */
@@ -10,7 +10,7 @@ export interface TemplateState {
   active: DbTemplate | null;
   beach: DbTemplate[] | null;
   indoor: DbTemplate[] | null;
-  season: string;
+  season: Season;
 }
 
 // Define initial state
@@ -22,6 +22,11 @@ const initialState: TemplateState = {
 };
 
 /** Sagas */
+export const CHANGE_SEASON = 'CHANGE_SEASON';
+export const changeSeason = (season: Season) => ({
+  type: CHANGE_SEASON,
+  season,
+});
 export const LOAD_TEMPLATES = 'LOAD_TEMPLATES';
 export const loadTemplates = () => ({ type: LOAD_TEMPLATES });
 export const UPDATE_ACTIVE = 'UPDATE_ACTIVE';
@@ -41,12 +46,17 @@ export const templateSlice = createSlice({
       state.beach = beachTemplates;
       state.indoor = indoorTemplates;
     },
-    setSeason: (state, action: PayloadAction<string>) => {
+    setSeason: (state, action: PayloadAction<Season>) => {
       state.season = action.payload;
     },
-    setActiveTemplate: (state, action: PayloadAction<string>) => {
+    setActiveTemplate: (state, action: PayloadAction<string | null>) => {
+      const { payload } = action;
+      if (!payload) {
+        state.active = null;
+      }
+
       const active = (state[state.season] as DbTemplate[]).find(
-        (t: DbTemplate) => t.id === action.payload
+        (t: DbTemplate) => t.id === payload
       );
       if (active) {
         state.active = active;
@@ -64,6 +74,9 @@ export default templateSlice.reducer;
 export const selectSeasonTemplates = (state: RootState) => {
   return state.templates[state.templates.season] as DbTemplate[];
 };
+
+export const selectSeason = (state: RootState): Season =>
+  state.templates.season;
 
 export const selectActiveTemplate = (state: RootState) => {
   if (!state.templates.active) {

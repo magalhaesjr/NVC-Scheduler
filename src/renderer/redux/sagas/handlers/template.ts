@@ -5,10 +5,12 @@ import {
   replaceTemplates,
   setActiveTemplate,
   selectActiveTemplate,
+  selectSeason,
+  setSeason,
 } from '../../template';
 import { setSchedule } from '../../schedule';
 import { initTeams } from '../../teams';
-import { DbTemplate } from '../../../../domain/template';
+import { DbTemplate, Season } from '../../../../domain/template';
 import { Week } from '../../../../domain/schedule';
 import { generatePreviews } from '../../preview';
 
@@ -16,6 +18,20 @@ export function* handleLoadTemplates() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const templates: DbTemplate[] = yield call(fetchTemplates);
   yield put(replaceTemplates(templates));
+}
+
+export function* handleChangeSeason(action: { season: Season }) {
+  const { season } = action;
+  // Get current season
+  const currentSeason: Season = yield select(selectSeason);
+
+  if (season !== currentSeason) {
+    // Reset active template
+    yield put(setActiveTemplate(null));
+    yield put(setSchedule([]));
+    yield put(initTeams(null));
+    yield put(setSeason(season));
+  }
 }
 
 export function* handleUpdateActive(action: { id: string }) {
