@@ -19,6 +19,9 @@ export interface DbTemplate {
   schedule: Schedule;
 }
 
+export type Season = 'beach' | 'indoor';
+export const TEMPLATE_CHANGE = 'scheduler:changeSeason';
+
 export const buildSchedule = (template: DbTemplate) => {
   return template;
 };

@@ -1,4 +1,5 @@
 import { app, Menu, BrowserWindow, MenuItemConstructorOptions } from 'electron';
+import { TEMPLATE_CHANGE } from '../domain/template';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -168,19 +169,13 @@ export default class MenuBuilder {
               {
                 label: 'For Beach',
                 click: () => {
-                  this.mainWindow.webContents.send(
-                    'start-template-schedule',
-                    'beach'
-                  );
+                  this.mainWindow.webContents.send(TEMPLATE_CHANGE, 'beach');
                 },
               },
               {
                 label: 'For Indoor',
                 click: () => {
-                  this.mainWindow.webContents.send(
-                    'start-template-schedule',
-                    'indoor'
-                  );
+                  this.mainWindow.webContents.send(TEMPLATE_CHANGE, 'indoor');
                 },
               },
             ],
